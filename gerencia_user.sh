@@ -5,7 +5,7 @@
 # Data: 2016/04/16 Versão 1.0
 # Autor: João Lucas <joaolucas@linuxmail.org>
 # Github: https://github.com/joao-lucas
-####
+#
 
 function menu() {
 clear 
