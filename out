@@ -1,0 +1,15 @@
+Feb 28 01:30:26 arch_linux dhcpcd[19742]: wlp2s0: ignoring RA from fe80::8af7:c7ff:fee8:5e1e (no public prefix, no managed address)
+Feb 28 01:30:26 arch_linux dhcpcd[19742]: wlp2s0: requesting DHCPv6 information
+Feb 28 01:30:31 arch_linux dhcpcd[19742]: wlp2s0: leased 192.168.1.5 for 86400 seconds
+Feb 28 01:30:31 arch_linux dhcpcd[19742]: wlp2s0: adding route to 192.168.1.0/24
+Feb 28 01:30:31 arch_linux dhcpcd[19742]: wlp2s0: adding default route via 192.168.1.1
+Feb 28 01:30:32 arch_linux dhcpcd[19742]: forked to background, child pid 19818
+Feb 28 01:30:38 arch_linux dhcpcd[19818]: wlp2s0: no IPv6 Routers available
+Feb 28 01:30:40 arch_linux dhcpcd[19818]: wlp2s0: Router Advertisement from fe80::8af7:c7ff:fee8:5e1e
+Feb 28 01:30:40 arch_linux dhcpcd[19818]: wlp2s0: ignoring RA from fe80::8af7:c7ff:fee8:5e1e (no public prefix, no managed address)
+Feb 28 01:30:40 arch_linux dhcpcd[19818]: wlp2s0: requesting DHCPv6 information
+Feb 28 03:38:26 arch_linux root[31038]: ACPI group/action undefined: processor / LNXCPU:00
+Feb 28 03:38:26 arch_linux root[31041]: ACPI group/action undefined: processor / LNXCPU:01
+Feb 28 03:38:26 arch_linux root[31043]: ACPI group/action undefined: processor / LNXCPU:02
+Feb 28 03:38:26 arch_linux root[31045]: ACPI group/action undefined: processor / LNXCPU:03
+Feb 28 03:41:21 arch_linux root[31833]: ACPI action undefined: PNP0C0A:00

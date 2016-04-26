@@ -1,0 +1,4 @@
+# TODO -  Indica uma tarefa a ser feita, por exemplo uma função que ainda esta faltando
+# FIXME - Indica um bug conhecido a ser arrumado
+# XXX - Chama a atenção, por exemplo uma tarefa que você não conseguiu realizar
+

@@ -1,0 +1,20 @@
+#!/bin/bash
+# Utilizando o comando select para contruir menu
+
+opcoes=("python", "shell", "haskell", "sair")
+
+select nome in "${opcoes[@]}"
+do
+        case $nome in
+                python) echo "Voce escolheu a linguagem python"
+                        ;;
+                shell) echo "Voce escolheu a linguagem shell"
+                        ;;
+                haskell) echo "Voce escolheu a linguagem haskell"
+                        ;;
+                sair)
+                        break
+                        ;;
+                *) echo "Opção invalida" ;;
+        esac
+done
