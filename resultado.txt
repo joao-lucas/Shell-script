@@ -1,3 +1,0 @@
-As linhas 18, foram alteradas em relação ao arquivo original
-As linhas foram inseridas em relação ao arquivo original
-As linhas 9, 21, foram removidas em relação ao arquivo original
