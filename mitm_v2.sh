@@ -1,4 +1,3 @@
-# 
 # Script de ARP-Spoof utilizando sslstrip e ettercap
 # 
 # Data: 2016/05/04
