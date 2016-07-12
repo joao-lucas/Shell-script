@@ -39,6 +39,7 @@ Wifi() {
         if [ $opcao_var = 1 ]; then
         sleep 1
         airmon-ng
+        
         echo "  Entre com o nome da interface Wifi:  "
         read interface
         clear
