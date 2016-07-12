@@ -125,5 +125,6 @@ echo "  Diretorio nao existe, criando diretorio..."
             }
         Exit() {
         exit 0
-}
+
+        }
 Wifi
