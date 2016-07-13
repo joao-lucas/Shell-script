@@ -92,7 +92,9 @@ iniciar_ataque(){
 
 install_req(){
 	echo -e "\n ~ Essa opção só esta disponivel para debian e derivados"
+	echo -e "\n ~ Atualizando  a lista de repositórios..." 
 	apt-get update
+	echo -e "\n ~ Instalando os pocotes requeridos..."
 	apt-get install dsniff sslstrip xterm figlet
 	if [ $? -eq 0 ]
 	then
