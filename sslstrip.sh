@@ -2,7 +2,7 @@
 # Script para automatizar o ataque sslstrip
 # Historico: 12-07-2016 v0.1
 #
-# Pacotes requeridos: sslstrip, dsniff e xterm
+# Pacotes requeridos: sslstrip, dsniff, figlet e xterm
 #
 # Autor: Joao Lucas <joaolucas@linuxmail.org>
 #
@@ -10,15 +10,17 @@
 DATA=$(date +'%d-%m-%Y-%H-%M')
 PREFIX=/home/jsouza/
 ARQ=cap_$DATA.log
+BANNER=$( figlet -f block -c "souz4" )
 
 menu(){
+	BANNER
 	echo "########################MENU##############################"
 	echo "########salvando em: $ARQ#############"
 	echo "##########################################################"
 	echo "1. Identificar gateway"
 	echo "2. Identificar target"
 	echo "3. Iniciar"
-	echo "4. Instalar dependências(Debian de devirados)"
+	echo "4. Instalar dependências(Debian e devirados)"
 	echo "99. Sair"
 	read -p "> Opção: " opt
 	
@@ -90,7 +92,8 @@ iniciar_ataque(){
 
 install_req(){
 	echo -e "\n ~ Essa opção só esta disponivel para debian e derivados"
-	apt-get install dsniff sslstrip xterm
+	apt-get update
+	apt-get install dsniff sslstrip xterm figlet
 	if [ $? -eq 0 ]
 	then
 		echo "[ OK ]Os pacotes necessários foram instalados!"
