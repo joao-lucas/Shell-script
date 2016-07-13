@@ -2,7 +2,7 @@
 # Script para automatizar o ataque sslstrip
 # Historico: 12-07-2016 v0.1
 #
-# Pacotes requeridos: sslstrip, dsniff, figlet e xterm
+# Pacotes requeridos: sslstrip, dsniff, nmap, figlet e xterm
 #
 # Autor: Joao Lucas <joaolucas@linuxmail.org>
 #
@@ -13,7 +13,6 @@ ARQ=cap_$DATA.log
 BANNER=$( figlet -f block -c "souz4" )
 
 menu(){
-	BANNER
 	echo "########################MENU##############################"
 	echo "########salvando em: $ARQ#############"
 	echo "##########################################################"
@@ -95,7 +94,7 @@ install_req(){
 	echo -e "\n ~ Atualizando  a lista de repositórios..." 
 	apt-get update
 	echo -e "\n ~ Instalando os pocotes requeridos..."
-	apt-get install dsniff sslstrip xterm figlet
+	apt-get install dsniff sslstrip xterm figleti nmap -y
 	if [ $? -eq 0 ]
 	then
 		echo "[ OK ]Os pacotes necessários foram instalados!"
@@ -108,8 +107,9 @@ while true
 do
 	if [ $UID -eq 0 ]
 	then
+		echo "$BANNER"
 		echo "O autor não se responsabiliza por qualquer ato feito com má fé utilizando esse script" 
-		sleep 2
+		sleep 3
 		clear
 		menu
 	else
