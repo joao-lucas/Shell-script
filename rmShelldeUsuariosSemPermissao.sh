@@ -5,13 +5,8 @@
 # Autor: Joao Lucas <joaolucas@linuxmail.org>
 #
 
-# Grupo dos usuários que podem fazer acesso a shells no sistema
-GRUPO_ADMIN=administradores
-USERS=$(cat /etc/passwd | cut -d ":" -f 1)	
-USERS_PERM=$(cat /etc/group | grep  $GRUPO_ADMIN | cut -d ":" -f 4)
-
-echo -e "\nGrupo de Administradores:\n $GRUPO_ADMIN"
-echo -e "\nUsuarios:\n $USERS"
-echo -e "\nUsuários Administradores:\n $USERS_PERM"
-#	usermod -s /bin/false $USER
-#do 	
+# Os usuários administradores deverao ser ignorados pelo for atravez da opção -v do grep
+for USER in $(cat /etc/passwd | cut -d ":" -f 1 | grep -v root | grep -v joao)
+do 
+	usermod -s /bin/false $USER
+done 	
