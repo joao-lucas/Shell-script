@@ -13,11 +13,7 @@ ARQ=cap_$DATA.log
 BANNER=$(figlet -f block -c "souz4")
 
 menu(){
-<<<<<<< HEAD
 	echo "$BANNER"
-=======
-	echo "########################MENU##############################"
->>>>>>> 89aac0e9538537aaf665008be5b1c0dd462960b7
 	echo "########salvando em: $ARQ#############"
 	echo "1. Identificar gateway"
 	echo "2. Identificar target"
@@ -110,12 +106,6 @@ while true
 do
 	if [ $UID -eq 0 ]
 	then
-<<<<<<< HEAD
-=======
-		echo "$BANNER"
-		echo "O autor não se responsabiliza por qualquer ato feito com má fé utilizando esse script" 
-		sleep 3
->>>>>>> 89aac0e9538537aaf665008be5b1c0dd462960b7
 		clear
 		menu
 	else
