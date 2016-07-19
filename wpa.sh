@@ -12,12 +12,13 @@ ARQ_CAP=arq_$DATA.cap
 WORD_LIST=/home/joao/wpa.txt
 
 menu(){
+	echo "##=================salvando em: $ARQ_CAP==================##"
 	echo "1. Ativar modo monitoramento" 
 	echo "2. Iniciar captura de pacotes"
 	echo "3. Injetar pacotes"
 	echo "4. Quebrar senha"
 	echo "99. Sair"
-	read -p "> Opção:" opt
+	read -p "> Opção: " opt
 
 	case $opt in
 		1) monitoramento ;;
@@ -36,9 +37,11 @@ monitoramento(){
 	if [ $? -eq 0 ]
 	then
 		echo "[ OK ] Modo monitoramento ativo!"
+		menu
 	else
 		echo "[ FALHA ] Ocorreram erros em ativar modo monitoramento!"
 		echo "~ Verifique se a interface de rede esta correta!"
+		menu
 	fi
 }
 
@@ -54,9 +57,11 @@ capturar_pacotes(){
 	if [ $? -eq 0 ]
 	then
 		echo "[ OK ] Captura de pacotes da rede $ESSID executado com sucesso!"
-		echo "~ Salvando em: $ARQ_CAP"	
+		echo "~ Salvando em: $ARQ_CAP"
+		menu	
 	else
 		echo "[ FALHA ] Ocorreram erros em capturar pacotes da rede $ESSID"
+		menu
 	fi
 }
 
@@ -67,8 +72,10 @@ deauth(){
 	if [ $? -eq 0 ]
 	then
 		echo "[ OK ] DEAUTH realizado com sucesso!"
+		menu
 	else
-	echo "[ FALHA ] Ocorreram erros em fazer DEAUTH!"
+		echo "[ FALHA ] Ocorreram erros em fazer DEAUTH!"
+		menu
 	fi
 }
 
@@ -78,22 +85,25 @@ injetar_pacotes(){
 	if [ $? -eq 0 ]
 	then
 		echo "[ OK ] Pacotes injetados!"
+		menu
 	else
 		echo "[ FALHA ] Ocorreram erros em injetar pacotes!"
+		menu
 	fi
 }
 
 quebrar_senha(){
 # quebrar senha
 	aircrack-ng $BSSID -w $WORD_LIST 
+	menu
 }
 
 while true
 do
-	if [$UID -eq 0]
+	if [ $UID -eq 0 ]
 	then
 		clear
-		main
+		menu
 	else
 		echo "Executar script como root!"
 		sleep 3
