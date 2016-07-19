@@ -29,7 +29,7 @@ function criaUser() {
 	read -p "> Nome completo do usuário $user:" nome
 	read -p "> Senha: " senha
 	
-	useradd -m -d /home/$user -c "$nome" -s /bin/bash -p `echo $senha | mkpasswd -s -H md5` $user
+	useradd -m -c "$nome" -s /bin/false -p `echo $senha | mkpasswd -s -H md5` $user
 	if [ $? -eq 0 ]
 	then
 		echo "[ OK ] Usuario $user criado com sucesso!"
@@ -44,7 +44,7 @@ function criaUser() {
 
 function apagaUser() {
 	read -p "> Qual usuário a ser removido? " user
-	cat /etc/passwd | cut -d ':' -f 1 | grep -wi $user
+	cat /etc/passwd | cut -d ':' -f 1 | grep -w $user
 	if [ $? -eq 0 ]
 	then
 		userdel -r $user
