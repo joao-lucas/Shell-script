@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script para automatizar o ataque sslstrip
+# Script para automatizar o ataque mitm sslstrip
 # Historico: 12-07-2016 v0.1
 #
 # Pacotes requeridos: sslstrip, dsniff, nmap, figlet e xterm
