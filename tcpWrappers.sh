@@ -12,18 +12,18 @@
 # Data: 20160601
 #
 
-if [ -f /etc/hosts.allow ]
+if [ ! -e /etc/hosts.allow ]
 then
-	cp /etc/hosts.allow /etc/hosts.allow.bkp
+	touch /etc/hosts.allow
 	echo "#Sintaxe: <serviço>: <hosts>" >> /etc/hosts.allow
-	#Exemplo: O serviço sshd sera liberado para os hosts 192.168.1.20 e 192.168.1.21
+	# O serviço sshd sera liberado para os hosts 192.168.1.20 e 192.168.1.21
 	echo "sshd: 192.168.1.20, 192.168.1.21" >> /etc/hosts.allow	
 	echo "[ OK ] Hosts.allow configurado com sucesso!"
 	sleep 2
 else
-	touch /etc/hosts.allow
+	#cp /etc/hosts.allow /etc/hosts.allow.bkp
 	echo "#Sintaxe: <serviço>: <hosts>" >> /etc/hosts.allow
-	# O serviço sshd sera liberado para os hosts 192.168.1.20 e 192.168.1.21
+	#Exemplo: O serviço sshd sera liberado para os hosts 192.168.1.20 e 192.168.1.21
 	echo "sshd: 192.168.1.20, 192.168.1.21" >> /etc/hosts.allow	
 	echo "[ OK ] Hosts.allow configurado com sucesso!"
 	sleep 2
@@ -31,19 +31,21 @@ fi
 
 # hosts.deny - esse é o arquivo de configuração de negação de acesso de entrada
 #de pacotes dos serviços especificados.
-if [ -f /etc/hosts.deny ]
+if [ ! -e /etc/hosts.deny ]
 then
-	cp /etc/hosts.deny /etc/hosts.deny.bkp
+        echo "~ Criando /etc/hosts.deny"
+        touch /etc/hosts.deny	
 	echo "#Sintaxe: <serviço>: <hosts>" >> /etc/hosts.deny
-	# Somente as conexões definidas pelas regras de hosts.allow será aceitas.
+	# Somente as conexões definidas pelas regras de hosts.allow serão aceitas. 
 	echo "ALL:ALL" >> /etc/hosts.deny
 	echo "[ OK ] Hosts.deny configurado com sucesso!"
 	sleep 2
 else
-	touch /etc/hosts.deny	
+	echo "O arquivo /etc/hosts.deny já existe, criando um backup do arquivo original e colocando novas entradas"
+        cp /etc/hosts.deny /etc/hosts.deny.bkp
 	echo "#Sintaxe: <serviço>: <hosts>" >> /etc/hosts.deny
-	# Somente as conexões definidas pelas regras de hosts.allow será aceitas.
+	# Somente as conexões definidas pelas regras de hosts.allow serão aceitas.
 	echo "ALL:ALL" >> /etc/hosts.deny
 	echo "[ OK ] Hosts.deny configurado com sucesso!"
-	sleep 2
+	
 fi
