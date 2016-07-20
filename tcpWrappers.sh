@@ -1,8 +1,7 @@
 #!/bin/bash
 #
 # Script de TCP Wrappers para segurança do inetd(super daemon).
-# O TCP Wrappers existe para configurar filtros de acesso de entrada de pacotes que usam o protocolo TCP e fazer com que essa
-#configuração possa ser mais simples possivel, a configuração do daemon tcpd é feita atraves dos arquivos hosts.allow e hosts.deny.
+#O TCP Wrappers existe para configurar filtros de acesso de entrada de pacotes que usam o protocolo TCP e fazer com que essa configuração possa ser mais simples possivel, a configuração do daemon tcpd é feita atraves dos arquivos hosts.allow e hosts.deny.
 # Seu uso pode diminuir a probabilidade de um ataque a algum serviço privilegiado limitando o acesso somente para máquinas clientes. 
 #
 # Pacotes requeridos: inetd
