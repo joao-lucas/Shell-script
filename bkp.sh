@@ -10,6 +10,7 @@
 #       Incremental: São copiados somente os dados alterados desde o ultimo backup.        
 #
 ##########################################################################################  
+
 DATA=$(date +'%Y-%m-%d-%H-%M')
 PREFIX=/backup
 BANNER=$( figlet -f block -c "souz4" )
