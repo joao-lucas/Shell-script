@@ -6,11 +6,9 @@
 # Autor: João Lucas <joaolucas@linuxmail.org>
 #
 
-dir_musicas=/home/joao_lucas/Música
-
 if [ $# -eq 1 ]
 then
-        youtube-dl --extract-audio --audio-format mp3 $1 $dir_musicas
+        youtube-dl --extract-audio --audio-format mp3 $1
         if [ $? -eq 0 ]
         then
                 echo "[ OK ] Audio $1 baixado com sucesso!"
