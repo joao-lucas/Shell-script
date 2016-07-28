@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script para fazer download de musicas do youtube em mp3
+# Script para fazer download de musicas em mp3 do youtube
 # Data: 28/07/2016
 # Requerimentos: youtube-dl
 # Autor: João Lucas <joaolucas@linuxmail.org>
@@ -8,13 +8,13 @@
 
 if [ $# -eq 1 ]
 then
-        youtube-dl --extract-audio --audio-format mp3 $1
+        youtube-dl --extract-audio --audio-format mp3 $1 2> /dev/null
         if [ $? -eq 0 ]
         then
-                echo "[ OK ] Audio $1 baixado com sucesso!"
+                echo "[ OK ] $1 baixado com sucesso!"
                 exit 0
         else
-                echo "[ FALHA ] Ocorreram falhas em baixar o audio!"
+                echo "[ FALHA ] Ocorreram falhas em baixar o arquivo mp3!"
                 exit 1
         fi
 else
