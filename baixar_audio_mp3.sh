@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script para fazer download de musicas em mp3 do youtube
+# Script para fazer download de musicas mp3 do youtube, vimeo, soundclound, facebook e muitos outros sites
 # Data: 28/07/2016
 # Requerimentos: youtube-dl
 # Autor: João Lucas <joaolucas@linuxmail.org>
