@@ -11,19 +11,19 @@ arq=/tmp/$data.ytb-dl
 
 if [ $# -eq 1 ]
 then
-        echo $arq
         youtube-dl --extract-audio --audio-format mp3 $1 2> /dev/null | tee $arq
         if [ $? -eq 0 ]
         then
-                musica=`cat $arq | grep ffmpeg | cut -d: -f2 | cut -d- -f1,2`
-                echo -e "\n [\033[0;32m OK\033[0m ] $musica baixado com sucesso!"
+                nome_mp3=`cat $arq | grep .mp3$ | cut -d: -f2 | cut -d- -f1,2`.mp3
+                echo -e "\n [\033[0;32m OK\033[0m ] $nome_mp3 baixado com sucesso!"
         else
                 echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram falhas em baixar o arquivo mp3!"
         fi
+        
+        # Removendo o arquivo temporátio 
+        rm -f /tmp/*.ytb-dl
+        exit 0
 else
         echo "Uso: $0 <URL>"
         exit 1
 fi
-
-#rm -f /tmp/*.ytb-dl
-exit 0
