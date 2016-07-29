@@ -4,6 +4,7 @@
 # Data: 28/07/2016
 # Requerimentos: youtube-dl
 # Autor: João Lucas <joaolucas@linuxmail.org>
+# Github: https://gitbub.com/joao-lucas
 #
 
 data=`date +'%d-%m-%Y-%H-%M'`
@@ -11,7 +12,7 @@ arq=/tmp/$data.ytb-dl
 
 if [ $# -eq 1 ]
 then
-        youtube-dl --extract-audio --audio-format mp3 $1 2> /dev/null | tee $arq
+        youtube-dl --extract-audio --audio-format  mp3 -o '%(title)s.%(ext)s' $1 2> /dev/null | tee $arq
         if [ $? -eq 0 ]
         then
                 nome_mp3=`cat $arq | grep .mp3$ | cut -d: -f2 | cut -d- -f1,2`.mp3
