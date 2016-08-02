@@ -72,8 +72,9 @@ baixar_videos(){
 
 # baixa videos dos cursos da udemy, é necessário estar cadastrado no site e possuir acesso aos cursos ou pelo menos ter acesso aos links dos videos 
 baixar_cursos_udemy(){
-        user=willy_hdb@hotmail.com
-        password=linuxforense
+        # é necessário especificar usuário e senha para fazer o download dos videos no udemy
+        user=
+        password=
         read -p "> Entre com o link da video-aula: " link_curso
         youtube-dl -u $user -p $password -c -o '/home/joao_lucas/Vídeos/Shell-script/%(title)s.%(ext)s' $link_curso
         if [ $? -eq 0 ]
