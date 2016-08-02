@@ -1,8 +1,0 @@
-
-Starting Nmap 7.12 ( https://nmap.org ) at 2016-05-04 20:17 BRT
-Nmap scan report for 192.168.1.101
-Host is up (0.11s latency).
-All 1000 scanned ports on 192.168.1.101 are filtered
-MAC Address: BC:85:1F:D4:72:18 (Samsung Electronics)
-
-Nmap done: 256 IP addresses (1 host up) scanned in 145.01 seconds
