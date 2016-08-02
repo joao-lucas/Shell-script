@@ -1,4 +1,0 @@
-   REFRESH(0 sec):
-   http://dnserros.oi.com.br/main?ParticipantID=ln9ax8zglhs3lmc5wonrlcomvi
-   6lvzb4&FailedURI=http%3A%2F%2Fwww.geeksbr.com%2F&FailureMode=1&Implemen
-   tation=&AddInType=4&Version=pywr1.0&ClientLocation=br
