@@ -11,7 +11,6 @@
 
 data=`date +'%d-%m-%Y-%H-%M'`
 arq=/tmp/$data.ytb-dl
-#dir_videos=/home/joao_lucas/Vídeos/
 
 menu(){
         echo "1. Baixar músicas mp3"
