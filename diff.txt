@@ -1,8 +1,0 @@
-10d9
-< systemd-journal-gateway:x:191:191:systemd-journal-gateway:/:/usr/bin/nologin
-19c18
-< joao_lucas:x:1000:100:Joao Lucas,,,,:/home/joao_lucas:/usr/bin/zsh
----
-> joo_lucas:x:1000:100:Joao Lucas,,,,:/home/joao_lucas:/usr/bin/zsh
-23d21
-< colord:x:124:124::/var/lib/colord:/bin/false
