@@ -7,7 +7,7 @@
 
 if [ -z "$1" ]
 then
-        echo "Especifique a chave a ser adicionada"
+        echo "Especifique os últimos 8 numeros da chave a ser adicionada"
         echo "USO: $0 <CHAVE_GPG>"
         exit 2
 fi
