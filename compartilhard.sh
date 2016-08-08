@@ -18,7 +18,7 @@ iniciar(){
 	iptables -t nat -A POSTROUTING -o $if_internet -j MASQUERADE
 	# não responder pings
 	iptables -A INPUT -p icmp --icmp-type echo-request -j DROP	
-	# protejer contra ataques IP Spoofing e contra pacotes invalidos, que geralmente são usados em ataques DoSe ataques de buffer overflow
+	# protejer contra ataques IP Spoofing e contra pacotes invalidos, que geralmente são usados em ataques DoS e ataques de buffer overflow
 	echo 1 > /proc/sys/net/ipv4/conf/default/rp_filter
 	iptables -A INPUT -m state --state INVALID -j DROP
 	# Autorizar pacotes provenientes da interface de loopback, juntamente com pacotes provenientes da rede local
@@ -26,7 +26,7 @@ iniciar(){
 	iptables -A INPUT -i $if_local -j ACCEPT
 	# abrir a porta 22 para usar SSH para conexões externas
 	iptables -A INPUT -p tcp --dport 22 -j ACCEPT
-	# bloqueia tentativas de conexão vindas da INternet
+	# bloqueia tentativas de conexão vindas da Internet
 	iptables -A INPUT -p tcp --syn -j DROP
 }
 
