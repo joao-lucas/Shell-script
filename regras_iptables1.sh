@@ -1,5 +1,59 @@
-#!/bin/bash
-# Algumas regras do iptables retiradas do Livro: Servidores Linux, guia prático - Carlos E. Morimoto
+# Algumas regras do iptables retiradas do Livro: Servidores Linux, guia prático - Carlos E. Morimoto por João Lucas. 
+# Data: 2016-08-18
+
+# 
+## Parâmetros do Iptables:
+ -A INPUT: Especifica que a regra se aplica a pacotes de entrada, ou seja, pacotes recebidos pelo servidor, em qualquer interface.
+ -A OUTPUT: A regra se aplica a pacotes de saída, transmitidos pelo proprio servidor.
+ -A FORWARD: Este parâmetro é usado ao compartilhar a conexão co a Internet, permitindo que os micros da rede local acessem atráves do servidor. Os pacotes de outros micros, encaminhados pelo servidor, são tratados como FORWARD, diferentemente dos pacotes transmitidos pelo próprio servidor, que são tratados como "OUTPUT. Você pode definir regras diferentes para cada situação"
+ -p tcp: Especifica que a regra se aplica a pacotes TCP, o que é o mais comum.
+ -p udp: Alguns serviços usam também portas UDP. Um bom exemplo são os servidores DNS, qie escutam tanto na porta 53 TCP, quanto na 53 UDP.
+ -p icmp: Usado para controle, pings e envio de mensagens
+ -p ALL: Aplica a regra aos três protocolos: TCP, UDP e ICMP
+
+# Como as portas UDP também são usadas por alguns serviços, é muito comum bloquear as prtas de 0 a 1023 UDP, autorizando apenas as portas que realmente deve ficar abertas, como em:
+iptables -A INPUT -p udp --dport 53 -j ACCEPT
+iptables -A INPUT -p udp --dport 0:1023 -j DROP
+
+-i eth0: Permite especificar a interface onde os pocotes devem ser recebidos ou enviaos. Por exemplo:
+iptables -A INPUT -p tcp -j REJECT
+# Simplesmente desconectaria seu micro da rede, pois bloquearia  comunicações em qualquer interface. Poém, se você especificasse a interface, ele bloquearia apenas pacotes recebidos atráves dela, como em:
+iptables -A INPUT -pi eth2 -p tcp -j REJECT
+
+# O mesmo se aplica quando você quer permitir conexões em determinaas portas, mas apenas a partir da placa de rede local. Para permitir conexões via SSH apenas a parit da placa eth0, você poderia usar:
+iptables -A INPUT -i eth0 -p tcp --dport 22 -j ACCEPT
+
+-o eth0: É similar ao parâmeto "-i", mas especifica uma interface de saída. Este parâmetro é menos usado, pois normalmente nos preucuṕamos em impedir que o firewall aceite conexões em determinadas portas, em vez de tentar interceptar as respostas.
+
+--dport ou --destination-port: Especifica uma porta. 
+
+-s(source): Especifica um endereço IP ou dominio de origem de forma a aceitar ou recusar as conexões. Embora seja muito fácil forjar endereços IP dentro da rede local, as coisas são muito mais complicadas na internet. Permitir o acesso a determinadas portas(como a SSH) apenas para determinadas endereços, ou faixas de endereços, é uma medida de segurança interessante em muitas situações.
+
+# Este é um exemplo de regra, que abre a porta 631 apenas para hosts dentro da faixa a máscara especificada:
+iptables -A INPUT -p tcp -s 72.232.35.0/255.255.255.248 --dport 631 -j ACCEPT
+
+-d(destiny): Destinado ao endereço IP ou domínio citado. É muito usado ao bloquear o acesso a determinados sites a partir dos micros da rede local como, por exemplo:
+iptables -A FORWARD -d torrentreactor.net -j REJECT
+
+-m mac --mac-source 00:11:F4:34:89:3A: Esta é a regra que permite especificar endereços MAC dentro de regras do Iptables que vimos há pouco.
+# Esta é uma forma de dificultar o uso de endereços IP falseados para ganhar acesso ao servidor, pois permite relacionar o IP ao endereço MAC da placa instalada. Lembre-se, porém, que ela só pode ser usada em rede local e que os endereços MAC são quese tão fáceis de falsear quanto os endereços IP.
+# Um exemplo seria:
+iptables -A INPUT --dport 22 -m mac --mac-source 00:11:F4:34:89:3A
+
+--syn: Cria uma regra válida apenas para novas conexões, não impedindo que o outro micro responda a conexões iniciadas pelo servidor, como em:
+iptables -A INPUT -p tcp --syn -j DROP
+
+-j: É usado no final de cada regra, especificando uma ação, que pode ser:
+-j ACCEPT: Aceita o pacote. Ele é encaminhado ao destino sem passar pelas demais regras.
+-j REJECT: Rejeita educadamente o pacote, enviando um pacote de resposta ao emissor.
+-j DROP: O DROP é mais enfático. O pacote é simplesmente descartado, sem aviso. O emessor fica um longo tempo esperando, até que eventualmente recebe um erro de time-out
+-j LOG: Permite logar conexões. É importa usar esta regra principalmente em portas muito visdas, como a do SSH, pois assim você tem uma lista de todos os endereços que acessaram seu servidor na porta especificada. Para ativar o log, você deve duplicar a regra que abre a porta, usando a opção "-j LOG" na primeira e "-j ACCEPT" na segunda, como em:
+iptables -A INPUT -p tcp --dport 22 -j LOG # note que a regra LOG deve vir primeiro que a ACCEPT, caso contrário, os pacotes serão aceitos primeiros e não terá como registrar o evento no lOG depois.
+iptables -A INPUT -p tcp 22 --dport 22 -j ACCEPT
+
+# As mensagens são gravadas em "/var/log/messages" de forma bastante detalhada, incluindo a data e hora da conexão, o IP e MAC do micro que fez a conexão(SRC), além da porta(DPT). Você pode ver o mesmo log, porém com as entradas escritas de forma resumida, usando o comando "dmesg"
+
+
 
 #
 ## Trabalhando com portas de entrada (sentido internet > rede local)
@@ -150,5 +204,4 @@ echo 0 > /proc/sys/net/ipv4/ip_forward
 echo 1 > /proc/sys/net/ipv4/tcp_syncookies
 echo 1 > /proc/sys/net/ipv4/conf/default/rp_filter
 iptables -A INPUT -m state --state INVALID -j DROP
-# Essas regras devemser adicionadas logo no inicio do script, de forma que sejam carregadas antes de qualquer regra que abra portas ou permita o acesso de endereços ou faixas de enredereços.
-
+# Essas regras devemser adicionadas logo no inicio do script, de forma que sejam carregadas antes de qualquer regra que abra portas ou permita o acesso de endereços ou faixas de enredereços
