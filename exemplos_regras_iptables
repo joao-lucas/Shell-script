@@ -125,7 +125,7 @@ iptables -A FORWARD -p tcp --dport 1863 -j REJECT
 iptables -A FORWARD -p tcp --dport 1025:65536 -j REJECT
 # Como estamos criando regras para micros da rede local e não para possíveis invasores da internet, é aconselhável usar a regra REJECT ao invés de DROP. Caso contrário, os programas nos clientes sempre ficarão muito tempo parados ao tentar acessar portas bloqueadas.
 
-# Bloquear um a um todos os programas indesejados acaba sendo tedioso, ao invés disso você pode experimentar uma solução mais redical: inverter a lófica da regra, bloqueando todas as portas de saída e abrindo apenas algumas portas permitidas.
+# Bloquear um a um todos os programas indesejados acaba sendo tedioso, ao invés disso você pode experimentar uma solução mais redical: inverter a lógica da regra, bloqueando todas as portas de saída e abrindo apenas algumas portas permitidas.
 # O Mínimo que você precisa abrir neste caso são as portas 80(HTTP) e 53(DNS). A partir daí, você pode abrir mais portas, como a 25(SMTP), 110(POP3), 443(HTTPS) e assim por diante.
 # Exemplo:
 iptables -A FORWARD -p udp -i eth0 --dport 53 -j ACCEPT
@@ -138,12 +138,12 @@ iptables -A FORWARD -p tcp -i eth0 -j REJECT
 # Bloqueia o acesso á web a partir de um determinado IP
 iptables -A FORWARD -p tcp -s 192.168.1.67 -j REJECT
 # Esta regra deve ir logo no inicio do scritp, antes das regras que abrem as portas de saída, caso contrário não surtirá efeito.
-# Lembre-se de que o iptables processa as regras sequencialmente: se uma compartilhha a conexão com todos micros da rede, não adianta tentar bloquear para determinados endereços depois. As regras com as excessões devem sempre vir antes da regra mais geral
+# Lembre-se de que o iptables processa as regras sequencialmente: se uma compartilha a conexão com todos micros da rede, não adianta tentar bloquear para determinados endereços depois. As regras com as excessões devem sempre vir antes da regra mais geral
 
 
 #
 ## Bloqueando domínios
-# É possivel bloquear ou permitir com vbase no dominio, tanto para entrada quanto saída. Isso permite bloquear sites e programas diretamente a partir do firewall, sem precisar instalar um servidor squid e configura-lo como proxy transparente.
+# É possivel bloquear ou permitir com base no dominio, tanto para entrada quanto saída. Isso permite bloquear sites e programas diretamente a partir do firewall, sem precisar instalar um servidor squid e configura-lo como proxy transparente.
 # Neste caso, usamos o parâmetro "-d"(destiny) do iptables, seguido do dominio desejado.
 # Para bloquear o facebook
 iptables -A OUTPUT -d www.facebook.com -j REJECT
@@ -152,10 +152,10 @@ iptables -A FORWARD -d www.facebook.com -j REJECT
 
  # Se voce for paranoico, você pode usar tambem a regra:
  iptables -A INPUT -s www.facebook.com -j DROP
- # Esta regra impede também que qualquer pacote proviniente de facebook.com chague até sua maquina.
+ # Esta regra impede também que qualquer pacote proviniente de facebook.com chegue até sua maquina.
 
-# Assim como no caso do aquid, ao dicidir bloquear o acesso a sites ou endereços diversos utilizando o iptables, voce vai logo acabar com uma lista relativamente grande de endereços a bloquear. Diferente do aquid, o iptables nao oferece uma opção para carregar a lista dos endereços que devem ser bloqueados a partir de um arquivo texto, mas isso pode ser resolvido com um script simples, que leia o conteúdo do arquivo e gere a regras correspondentes.
-# Comece criando um arquivo testo contendo os dominios ou endereços IP que deseja bloquear, um por linha:
+# Assim como no caso do squid, ao dicidir bloquear o acesso a sites ou endereços diversos utilizando o iptables, voce vai logo acabar com uma lista relativamente grande de endereços a bloquear. Diferente do squid, o iptables nao oferece uma opção para carregar a lista dos endereços que devem ser bloqueados a partir de um arquivo texto, mas isso pode ser resolvido com um script simples, que leia o conteúdo do arquivo e gere as regras correspondentes.
+# Comece criando um arquivo texto contendo os dominios ou endereços IP que deseja bloquear, um por linha:
 # >  www.facebook.com
 # >  www.xvideos.com
 # >  www.orkut.com
@@ -168,29 +168,29 @@ done
 
 #
 ## Regras adicionais de segurança
-# Em um servidor dedicado, não faz muito sentido bloquear a respostas a pings, já que de qualquer forma, ele precisará ficar com um conjunto de portas abertas. Ao invés de bloquear os pings, que afinal podem ser úteis em algumas situações, você pode limitar as respostas a apenas uma por segundo, evitano que alguém de má fé possa enviar um grande volume de pings (como o comando ping -f), como parte de um ataque DoS.
+# Em um servidor dedicado, não faz muito sentido bloquear as respostas a pings, já que de qualquer forma, ele precisará ficar com um conjunto de portas abertas. Ao invés de bloquear os pings, que afinal podem ser úteis em algumas situações, você pode limitar as respostas a apenas uma por segundo, evitando que alguém de má fé possa enviar um grande volume de pings (como o comando ping -f), como parte de um ataque DoS.
 # Nesse caso seria
 iptables -A INPUT -p icmp --icmp-type echo-request -m limit --limit 1/s -j ACCEPT
 
 # Se seu servidor não irá atuar com um roteador, é prudente desativar o suporte a ICMP redirects. Este é um recurso utiizado por roteadores para alertar outros de que existe um melhor caminho para um determinado endereço ou rede, mas não tem uso legitimo em um servidor que não roteia pacotes:
 echo 0 > /proc/sys/net/ipv4/conf/all/accept_redirects
 
-# Outra configuração desejada é desativar o suporte a ping broadcasts, um recurso que tem poucos usos legitimos e pode ser usado para fazer com que servidores participem involuntariamente de ataques DoS, enviando grandes quantidades de pings a outros servidores dentreo da mesma faixa de endereços. Ele já vem desativado em quase todas as distruibuições atuais, mas não custa verificar:
+# Outra configuração desejada é desativar o suporte a ping broadcasts, um recurso que tem poucos usos legitimos e pode ser usado para fazer com que servidores participem involuntariamente de ataques DoS, enviando grandes quantidades de pings a outros servidores dentro da mesma faixa de endereços. Ele já vem desativado em quase todas as distruibuições atuais, mas não custa verificar:
 echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
 
-# Mais uma opção importante manter desativada é o suporte ao souce routing. Este é um recurso usado para testes de roteadores, que permite ao emissor especificar qual o caminho que o pacote tomará até o destino e também o caminho de volta. Ele é perigoso, pois permite falsear pacotes, fazendo com que eles pareçam vir de outro endereço e, ao mesmo tempo, fazeer com que as respostas realmente sejam recebidas, permitindo abrir a conexão e tranferir dados. Em outras palavra, se voce inclui regras que permitem o acesso de determiandos endereços e esqueceu o suporte source routing ativo, um atacante que soubesse quais são os endereços autorizados poderia abrir conexões com o seu servidor se fazendo passar por um deles, um risco que você cm certeza gostaria de evitar. COmo o recurso não possui outros usos legitimos, é fortemente recomendável que você o mantenha desativado:
+# Mais uma opção importante manter desativada é o suporte ao source routing. Este é um recurso usado para testes de roteadores, que permite ao emissor especificar qual o caminho que o pacote tomará até o destino e também o caminho de volta. Ele é perigoso, pois permite falsear pacotes, fazendo com que eles pareçam vir de outro endereço e, ao mesmo tempo, fazer com que as respostas realmente sejam recebidas, permitindo abrir a conexão e transferir dados. Em outras palavras, se voce inclui regras que permitem o acesso de determiandos endereços e esqueceu o suporte source routing ativo, um atacante que soubesse quais são os endereços autorizados poderia abrir conexões com o seu servidor se fazendo passar por um deles, um risco que você com certeza gostaria de evitar. Como o recurso não possui outros usos legitimos, é fortemente recomendável que você o mantenha desativado:
 echo 0 > /proc/sys/net/ipv4/conf/all/accept_source_route
 
 # Diferente do servidor de rede local que compartilha a conexão, o servidor não deverá compartilhar a conexão, nem encaminhar pacotes de outros hosts. Vocẽ pode deixar explicito desativando o suporte a ip_forward:
 echo 0 > /proc/sys/net/ipv4/ip_forward
 
 # Concluindo, temos o suporte a SYN cookies, Um dos tipos mais comuns de ataques DoS e também um dos mais efetivos é o SYN Flood. Este tipo de ataque consiste em enviar um grande volume de pacotes SYN até o alvo, sem nunca efetivamente abrir a conexão. Como os pacotes SYN possuem alguns poucos bytes, o ataque pode ser feito mesmo a partir de uma conexão domestica.
-# Como existe um limite de conexões TCP que o servudor pode manter ativas simultaneamente, um grande volume de pacotes SYN podem estourar o limite de conexões, fazendo com que o servidor deixe de responder a novas conexões, mesmo que exista banda disponivel.
-# No linux, isso pode ser evitado de forma bastante simples, ativando o iso de SYN Cookies, um recurso oferecido diretamente pelo Kernel, o que é feito com o comando abaixo, que pode incluido no seu script de firewall:
+# Como existe um limite de conexões TCP que o servidor pode manter ativas simultaneamente, um grande volume de pacotes SYN podem estourar o limite de conexões, fazendo com que o servidor deixe de responder a novas conexões, mesmo que exista banda disponivel.
+# No linux, isso pode ser evitado de forma bastante simples, ativando o uso de SYN Cookies, um recurso oferecido diretamente pelo Kernel, o que é feito com o comando abaixo, que pode incluido no seu script de firewall:
 echo 1 > /proc/sys/net/ipv4/ip_syncookies
-# Ao atuvas o recurso, o sistema passa a responder ao pacote SYN inicial com um cookie, que identifica o cliente. Com isso o sistema aloca um espaço para a conexão apenas após receber o pacote ACK de resposta, tornando o ataque inefetivo. O atacante ainda pode consumir um pouco de banda, obrigando o servidor a enviar um grande volume de SYN Cookie de resposta, mas o efeito sobre o servidor é minimo
+# Ao ativar o recurso, o sistema passa a responder ao pacote SYN inicial com um cookie, que identifica o cliente. Com isso o sistema aloca um espaço para a conexão apenas após receber o pacote ACK de resposta, tornando o ataque inefetivo. O atacante ainda pode consumir um pouco de banda, obrigando o servidor a enviar um grande volume de SYN Cookie de resposta, mas o efeito sobre o servidor é minimo.
 
-# Concluindo, adicione também as regras que ativam o uso de rp_filter, de forma que o firewall sempre responda aos pacotes na mesma interface da qual eles foram originados, o que previne ataques diversos que tentem tirar proveito da regra que permite conexões na interface de loopback. Outra opção interessante é o blouqeio de pacotes inválifos, o que também melhora a segurança contra ataques diversos, incluindo pacotes enviados sem serem precedidos pelo envio do pacote SYN e da abertura de conexão:
+# Concluindo, adicione também as regras que ativam o uso de rp_filter, de forma que o firewall sempre responda aos pacotes na mesma interface da qual eles foram originados, o que previne ataques diversos que tentem tirar proveito da regra que permite conexões na interface de loopback. Outra opção interessante é o bloqueio de pacotes inválidos, o que também melhora a segurança contra ataques diversos, incluindo pacotes enviados sem serem precedidos pelo envio do pacote SYN e da abertura de conexão:
 echo 1 > /proc/sys/net/ipv4/conf/default/rp_filter
 iptables -A INPUT -m state --state INVALID -j DROP
 
@@ -203,4 +203,4 @@ echo 0 > /proc/sys/net/ipv4/ip_forward
 echo 1 > /proc/sys/net/ipv4/tcp_syncookies
 echo 1 > /proc/sys/net/ipv4/conf/default/rp_filter
 iptables -A INPUT -m state --state INVALID -j DROP
-# Essas regras devemser adicionadas logo no inicio do script, de forma que sejam carregadas antes de qualquer regra que abra portas ou permita o acesso de endereços ou faixas de enredereços
+# Essas regras devem ser adicionadas logo no inicio do script, de forma que sejam carregadas antes de qualquer regra que abra portas ou permita o acesso de endereços ou faixas de endereços.
