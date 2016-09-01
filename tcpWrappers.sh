@@ -38,6 +38,8 @@
 
 # Qualquer modificação no arquivo /etc/hosts.allow entrará em ação após reniciar o daemon inetd. Isto pode ser feito com o comando kill -HUP [pid do inetd], o pid do inetd pode ser obtido com o comando ps ax | grep inetd
 
+## Exemplo simples se um script para tcp wrappers
+
 if [ ! -e /etc/hosts.allow ]
 then
 	touch /etc/hosts.allow
@@ -75,3 +77,20 @@ else
 	echo "[ OK ] Hosts.deny configurado com sucesso!"
 	
 fi
+
+# Para testar usamos o comando: "tcpdmach in.serviço host"
+# Exemplo: tcpmatch in.fingerd 127.0.0.1
+
+
+
+## Exemplos /etc/hosts.equiv e /etc/shosts.equiv
+## O arquivo /etc/hosts.equiv é usado para garantir/bloquear certos computadores e usuários o direito de acesso aos serviços "*r" (rsh, rexec, rcp, etc) sem precisar fornecer uma senha.
+## O /etc/shosts.equiv é equivalente mas é lido somente pelo ssh. Esta função é útil em um ambiente seguro onde você controla todas as maquinas, mesmoa ssim isto é um perigo de segurança.
+## O formato do aquivo é o seguinte:
+# Acesso	Máquina				Usuário
+# -		maquina2.dominio.com.br		usuario2
+# -		maquina4.dominio.com.br		usuario2
+# +		maquina1.dominio.com.br		+@usuarios 
+
+# Grupos de rede podem ser especificados usando a sintaxe "+@grupo".
+
