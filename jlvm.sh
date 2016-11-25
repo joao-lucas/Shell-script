@@ -1,23 +1,39 @@
 #!/bin/bash
 
 # Esse script foi desenvolvido para automatizar algumas tarefas de LVM(Logical Volume Manager), e tem como objetivo:
-#	- Criar volume fisico 
+#	- Criar volume fisico
+#	- Remover volume fisico 
 #	- Criar grupo de volume
-#	- Extender grupo de volume
-#	- Diminuir grupo de volume
+#	- Remover volume fisico de um grupo de volume
+#	- Remover todo um grupo de volume
+#	- Estender grupo de volume
 #	- Criar volume logico
-#	- Extender volume logico
+#	- Remover volume logico
+#	- Estender volume logico
 #	- Reduzir tamanho de volume logico
-#	- Remover e mostrar detalhes de todos itens acima
+#	- Mostrar detalhes de todos itens acima
 #
 
-# Pacotes requeridos: lvm2
 #
-# Distributed under the terms if the MIT License.
-# See accompanying file LICENSE or copy at http://www.opensource.org/licenses/MIT_1_0.txt
+# The MIT License (MIT) 
+# Copyright (c) 2016 João Lucas
 #
-# Data: 2016-11-25.v1
-# Autor: João Lucas <joaolucas@linuxmail.org>
+# 	Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
+# files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
+# modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software
+# is furnished to do so, subject to the following conditions:
+#
+#	The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+#	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+# OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+# FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# Required packages: lvm2
+# Date: 2016-11-25.v1
+#
+# Author: João Lucas <joaolucas@linuxmail.org>
 #
 
 #			      +-----+	
@@ -71,10 +87,10 @@ function pv_create() {
 	pvscan
 	separador	
 	read -p "Informe o volume fisico a ser CRIADO(ex.: /dev/sdc2):" volume_fisico
-	pvcreate $volume_fisico
+		pvcreate $volume_fisico > /dev/null 2>> lvm-erros.txt
 	if [ $? -eq 0 ]
 	then
-                echo -e "\n [\033[0;32m OK\033[0m ] Volume fisico criado!"
+                echo -e "\n [\033[0;32m OK\033[0m ] Volume fisico "$volume_fisico" criado com sucesso!"
 	else
                 echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros! Verifique se o volume fisico esta correto."
 		exit 1
@@ -85,15 +101,14 @@ function pv_create() {
 function pv_remove() { 
 	separador
 	pvscan
-	separador
-		
+	separador	
 	read -p "Informe o volume fisico a ser REMOVIDO: " volume_fisico
-	pvremove $volume_fisico --force
+	pvremove $volume_fisico --force > /dev/null 2>> lvm-erros.txt
 	if [ $? -eq 0 ]
 	then
-                echo -e "\n [\033[0;32m OK\033[0m ] Volume fisico REMOVIDO!"
+                echo -e "\n [\033[0;32m OK\033[0m ] Volume fisico "$volume_fisico" foi REMOVIDO!"
 	else
-                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros! Verifique se o volume fisico esta correto."
+                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros! Verifique se o volume fisico "$volume_fisico" esta correto."
 		exit 1
 	fi	
 }
@@ -112,14 +127,14 @@ function vg_create() {
 	vgscan
 	separador
 	
-	read -p "Nome do grupo de volumes(ex.: grupo_volume1): " gv_nome
-	read -p "Informe os volumes fisicos(ex.: /dev/sda1 /dev/sda2 /dev/sdc1): " vg_volume_fisico
-	vgcreate $gv_nome $vg_volume_fisico		
+	read -p "Nome do grupo de volume: " grupo_volume
+	read -p "Informe os volumes fisicos(ex.: /dev/sda1 /dev/sda2 /dev/sdc1): " volume_fisico
+	vgcreate $grupo_volume $volume_fisico > /dev/null 2>> lvm-erros.txt	
 	if [ $? -eq 0 ]
 	then
-                echo -e "\n [\033[0;32m OK\033[0m ] Grupo de volumes CRIADO com sucesso!"
+                echo -e "\n [\033[0;32m OK\033[0m ] Grupo de volume "$grupo_volume" CRIADO com sucesso!"
 	else
-                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros na CRIAÇÃO do grupo de volumes!"
+                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros na CRIAÇÃO do grupo de volume "$grupo_volume"!"
 		exit 1
 	fi 
 }
@@ -130,12 +145,12 @@ function vg_remove() {
 	vgscan
 	separador
 	read -p "Nome do grupo de volume a ser REMOVIDO: " grupo_volume
-	vgremove $grupo_volume
+	vgremove $grupo_volume > /dev/null 2>> lvm-erros.txt
 	if [ $? -eq 0 ]
 	then
-                echo -e "\n [\033[0;32m OK\033[0m ] Grupo de volumes REMOVIDO com sucesso!"
+                echo -e "\n [\033[0;32m OK\033[0m ] Grupo de volume "$grupo_volume" REMOVIDO com sucesso!"
 	else
-                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros na REMOÇÃO do grupo de volumes!"
+                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros na REMOÇÃO do grupo de volume "$grupo_volume"!"
 		exit 1
 	fi 
 }
@@ -155,12 +170,12 @@ function vg_extend() {
 	pvscan
 	separador
 	read -p "Informe o volume fisico a ser adicionado: " volume_fisico
-	vgextend $grupo_volume $volume_fisico
+	vgextend $grupo_volume $volume_fisico > /dev/null 2>> lvm-erros.txt
 	if [ $? -eq 0 ]
 	then
-                echo -e "\n [\033[0;32m OK\033[0m ] Novo volume fisico ADICIONADO no grupo de volumes com sucesso!"
+                echo -e "\n [\033[0;32m OK\033[0m ] Novo volume fisico "$volume_fisico" ADICIONADO no grupo de volume "$grupo_volume" com sucesso!"
 	else
-                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros em ADICIONAR volume fisico no grupo de volume!"
+                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros em ADICIONAR volume fisico "$volume_fisico" no grupo de volume "$grupo_volume"!"
 		exit 1
 	fi 
 }
@@ -172,12 +187,12 @@ function vg_reduce() {
 	separador
 	read -p "Informe o volume fisico a ser REMOVIDO: " volume_fisico
 	read -p "Grupo de volume que o volume fisico faz parte: " grupo_volume
-	vgreduce $grupo_volume $volume_fisico
+	vgreduce $grupo_volume $volume_fisico > /dev/null 2>> lvm-erros.txt
 	if [ $? -eq 0 ]
 	then
-                echo -e "\n [\033[0;32m OK\033[0m ] Volume fisico REMOVIDO do grupo de volume com sucesso!"
+                echo -e "\n [\033[0;32m OK\033[0m ] Volume fisico "$volume_fisico" REMOVIDO do grupo de volume "$grupo_volume" com sucesso!"
 	else
-                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros em REMOVER volume fisico do grupo de volume!"
+                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros em REMOVER o volume fisico "$volume_fisico" do grupo de volume "$grupo_volume"!"
 		exit 1
 	fi 
 }
@@ -195,15 +210,15 @@ function lv_create() {
 	separador
 	lvscan
 	separador
-	read -p "Nome do volume logico(ex.: volume1): " volume_logico
+	read -p "Nome do volume logico: " volume_logico
 	read -p "Infome o grupo de volume: " grupo_volume
-	read -p "Tamanho do grupo de volume(ex.: 100GB):" tamanho
-	lvcreate -L $tamanho -n $volume_logico $grupo_volume
+	read -p "Tamanho do grupo de volume(ex.: 512MB 100GB 2TB):" tamanho
+	lvcreate -L $tamanho -n $volume_logico $grupo_volume > /dev/null 2>> lvm-erros.txt
 	if [ $? -eq 0 ]
 	then
-                echo -e "\n [\033[0;32m OK\033[0m ] Volume logico CRIADO com sucesso!"
+                echo -e "\n [\033[0;32m OK\033[0m ] Volume logico "$volume_logico" de "$tamanho" CRIADO com sucesso!"
 	else
-                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros na CRIAÇÃO do volume logico!"
+                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros na CRIAÇÃO do volume logico "$volume_logico"!"
 		exit 1
 	fi 
 }
@@ -214,13 +229,13 @@ function lv_remove() {
 	lvscan
 	separador
 	echo "[ ATENÇÃO ] Antes de remover um volume lógico, é preciso desmontalo!"
-	read -p "Informe o volume logico a ser REMOVIDO(ex.: /dev/grupo_volume1/volume1): " volume_logico
-	lvremove $volume_logico
+	read -p "Informe o volume logico a ser REMOVIDO(/dev/grupo-volume/volume-logico): " volume_logico
+	lvremove $volume_logico --force > /dev/null 2>> lvm-erros.txt
 	if [ $? -eq 0 ]
 	then
-                echo -e "\n [\033[0;32m OK\033[0m ] Volume logico CRIADO com sucesso!"
+                echo -e "\n [\033[0;32m OK\033[0m ] Volume logico "$volume_logico" REMOVIDO com sucesso!"
 	else
-                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros na CRIAÇÃO do volume logico!"
+                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros na REMOÇÃO do volume logico "$volume_logico"!"
 		exit 1
 	fi 
 }
@@ -239,18 +254,18 @@ function lv_extend() {
 	echo "[ ATENÇÃO ] Verifique que o volume logico esta desmontado antes de prosseguir!"
 	read -p "Informe o volume logico(ex.: /dev/grupo_volume1/volume1): " volume_logico
 	read -p "Tamanho do volume logico depois do redimensionamento: " tamanho
-	lvresize -L $tamanho $volume_logico	
+	lvresize -L $tamanho $volume_logico > /dev/null 2>> lvm-erros.txt	
 	if [ $? -eq 0 ]
 	then
-                echo -e "\n [\033[0;32m OK\033[0m ] Volume logico REDIMENSIONADO com sucesso!"
+                echo -e "\n [\033[0;32m OK\033[0m ] Volume logico "$volume_logico" REDIMENSIONADO com sucesso!"
 	else
-                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros em REDIMENSIONAR o volume logico!"
+                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros em REDIMENSIONAR o volume logico "$volume_logico"!"
 		exit 1
 	fi 	
 	echo "Verificando se ocorreu algum erro..."
-	e2fsck -f $volume_logico
+	e2fsck -f $volume_logico 2>> lvm-erros.txt
 	echo "Atualizando a tabela de alocação de arquivos..."
-	resize2fs $volume_logico
+	resize2fs $volume_logico > /dev/null 2>> lvm-erros.txt
 	
 }
 
@@ -266,22 +281,21 @@ function lv_reduce() {
         read -p "Informe o volume logico(ex.: /dev/grupo_volume1/volume1): " volume_logico
         read -p "Tamanho do volume logico depois da redução: " tamanho
 	echo "Verificando se há erros no volume... "
-	e2fsck -f $volume_logico	
-
+	e2fsck -f $volume_logico 2>> lvm-erros.txt	
 	if [ $? -eq 0 ]
 	then
-                echo -e "\n [\033[0;32m OK\033[0m ] Checagem no volume logico!"
+                echo -e "\n [\033[0;32m OK\033[0m ] Checagem no volume logico "$volume_logico"!"
 	else
-                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros na checagem do volume logico!"
+                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros na checagem do volume logico "volume_logico"!"
 		exit 1
 	fi 	
-	resize2fs $volume_logico $tamanho
-	lvresize -L $tamanho $volume_logico
+	resize2fs $volume_logico > /dev/null 2>> lvm-erros.txt
+	lvresize -L $tamanho $volume_logico --force > /dev/null 2>> lvm-erros.txt
 	if [ $? -eq 0 ]
 	then
-                echo -e "\n [\033[0;32m OK\033[0m ] Volume logico DIMINUIDO com sucesso!"
+                echo -e "\n [\033[0;32m OK\033[0m ] Volume logico "$volume_logico" DIMINUIDO com sucesso!"
 	else
-                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros em DIMINUIR o volume logico!"
+                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros em DIMINUIR o volume logico "$volume_logico"!"
 		exit 1
 	fi 	
 }
