@@ -1,38 +1,38 @@
 #!/bin/bash
 
-
-# Esse script foi desenvolvido para automatizar algumas tarefas de LVM, como:
-#	- Criar volumes fisicos 
+# Esse script foi desenvolvido para automatizar algumas tarefas de LVM(Logical Volume Manager), e tem como objetivo:
+#	- Criar volume fisico 
 #	- Criar grupo de volume
 #	- Extender grupo de volume
 #	- Diminuir grupo de volume
-#	- Criar volumes logicos
-#	- Extender volumes logicos
-#	- Reduzir tamanho de volumes logicos
+#	- Criar volume logico
+#	- Extender volume logico
+#	- Reduzir tamanho de volume logico
 #	- Remover e mostrar detalhes de todos itens acima
 
 #
 # Distributed under the terms if the MIT License.
 # See accompanying file LICENSE or copy at http://www.opensource.org/licenses/MIT_1_0.txt
 #
+# Data: 2016-11-25.v1
 # Autor: João Lucas <joaolucas@linuxmail.org>
 #
 
-# +----------------------------LVM-----------------------------------+
+# +-----------------------------LVM----------------------------------+
 # |			        				     |
 # |								     |
 # |    +-------------+	         +-----------+      +--------------+ | 
 # |    | /mnt/backup | 	         | /mnt/var  |      |  		   | |->Sistemas de arquivos
 # |    +-------------+ 	         +-----------+      |  Espaço não  | |
-# |	       |		       |            |	alocado    | |
+# |	      |		   	       |            |	alocado    | |
 # | +---------------------+   +------------------+  |		   | |->Volumes logicos
 # | | /dev/storage/backup |   |	/dev/storage/var |  |		   | |  
 # | +---------------------+   +------------------+  +--------------+ |
-# | 	       |		       |		    |	     |
+# | 	      |		       	       |		   |	     |
 # | +--------------------------------------------------------------+ |
-# | |		            storage				   | |->Grupos de volumes
+# | |		              storage				   | |->Grupos de volumes
 # | +--------------------------------------------------------------+ |
-# |	      |		    |	          |	        |	     |	
+# |	      |		    |	  	  |	        |	     |	
 # |     +-----------+ +-----------+ +-----------+ +-----------+	     | 
 # |     | /dev/sda1 | | /dev/sda2 | | /dev/sdb1 | | /dev/sdc1 |	     |->Volumes fisicos
 # |     +-----------+ +-----------+ +-----------+ +-----------+      |
@@ -52,7 +52,7 @@
 
 # Função para mostrar o modo de uso do script
 function usage() {
-	echo "uso: $0 --menu|--help"
+	echo "uso: $0"
 	exit 0
 }
 
@@ -95,7 +95,7 @@ function pv_display() {
 ## GRUPO DE VOLUME 
 # 4. Criar grupo de volume (volume group)
 function vg_create() {
-	read -p "Nome do grupo de volumes: " gv_nome
+	read -p "Nome do grupo de volumes(ex.: grupo_volume1): " gv_nome
 	read -p "Informe os volumes fisicos(ex.: /dev/sda1 /dev/sda2 /dev/sdc1): " vg_volume_fisico
 	vgcreate $gv_nome $vg_volume_fisico		
 	if [ $? -eq 0 ]
@@ -140,27 +140,46 @@ function vg_scan() {
 ## VOLUME LOGICO
 # 10. Criar volume logico
 function lv_create() {
-
+	read -p "Nome do volume logico(ex.: volume1): " volume_logico
+	read -p "Infome o grupo de volume: " grupo_volume
+	read -p "Tamanho do grupo de volume(ex.: 100GB):" tamanho
+	lvcreate -L $tamanho -n $volume_logico $grupo_volume
 }
 
 # 11. Remover volume logico
 function lv_remove() {
-
+	echo "[ ATENÇÃO ] Antes de remover um volume lógico, é preciso desmontalo!"
+	read -p "Informe o volume logico a ser REMOVIDO(ex.: /dev/grupo_volume1/volume1): " volume_logico
+	lvremove $volume_logico
 }
+
 
 # 12. Exibir detalhes do volume logico
 function lv_display() {
-
+	lvdisplay
 }
 
 # 13. Aumentar o tamanho do volume logico
 function lv_extend() {
-
+	echo ´[ ATENÇÃO ] Verifique que o volume logico esta desmontado antes de proceguir!"
+	read -p "Informe o volume fisico(ex.: /dev/grupo_volume1/volume1): " volume_logico
+	read -p "Tamanho do volume logico depois do redimensionamento: " tamanho
+	lvresize -L $tamanho $volume_logico	
+	echo "Verificando se ocorreu algum erro..."
+	e2fsck -f $volume_logico
+	echo "Atualizando a tabela de alocação de arquivos..."
+	resize2fs $volume_logico
 }
 
 # 14. Diminuir o tamanho do volume logico
 function lv_reduce() {
-
+# OBS. Quando você vai EXPANDIR um volume LVM, primeiro redimensiona o volume e depois atualiza as informações do sistema de arquivos.
+# Quando você DIMINUIR o volume logico, primeiro atualiza a informação do sistema de arquivos, e depois reduz o tamanho do volume.
+# Isso é para evitar a perda de dados
+	echo ´[ ATENÇÃO ] Verifique que o volume logico esta desmontado antes de proceguir!"
+        read -p "Informe o volume fisico(ex.: /dev/grupo_volume1/volume1): " volume_logico
+        read -p "Tamanho do volume logico depois da redução: " tamanho
+	lvresize -L $tamanho $volume_logico 
 }
 
 
