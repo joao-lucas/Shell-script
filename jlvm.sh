@@ -20,8 +20,6 @@
 # Autor: João Lucas <joaolucas@linuxmail.org>
 #
 
-# XXX - função 13 arrumar extends
-
 #			      +-----+	
 # +---------------------------| LVM |--------------------------------+
 # |			      +-----+				     |
@@ -76,9 +74,9 @@ function pv_create() {
 	pvcreate $volume_fisico
 	if [ $? -eq 0 ]
 	then
-		echo "[ OK ] Volume fisico criado!"
+                echo -e "\n [\033[0;32m OK\033[0m ] Volume fisico criado!"
 	else
-		echo "[ FALHA ] Ocorreram erros! Verifique se o volume fisico esta correto."
+                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros! Verifique se o volume fisico esta correto."
 		exit 1
 	fi		
 }
@@ -87,14 +85,15 @@ function pv_create() {
 function pv_remove() { 
 	separador
 	pvscan
-	separador	
+	separador
+		
 	read -p "Informe o volume fisico a ser REMOVIDO: " volume_fisico
 	pvremove $volume_fisico --force
 	if [ $? -eq 0 ]
 	then
-		echo "[ OK ] Volume fisico REMOVIDO!"
+                echo -e "\n [\033[0;32m OK\033[0m ] Volume fisico REMOVIDO!"
 	else
-		echo "[ FALHA ] Ocorreram erros! Verifique se o volume fisico esta correto."
+                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros! Verifique se o volume fisico esta correto."
 		exit 1
 	fi	
 }
@@ -118,9 +117,9 @@ function vg_create() {
 	vgcreate $gv_nome $vg_volume_fisico		
 	if [ $? -eq 0 ]
 	then
-		echo " [ OK ] Grupo de volumes CRIADO com sucesso!"
+                echo -e "\n [\033[0;32m OK\033[0m ] Grupo de volumes CRIADO com sucesso!"
 	else
-		echo "[ FALHA ] Ocorreram erros na CRIAÇÃO do grupo de volumes!"
+                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros na CRIAÇÃO do grupo de volumes!"
 		exit 1
 	fi 
 }
@@ -134,9 +133,9 @@ function vg_remove() {
 	vgremove $grupo_volume
 	if [ $? -eq 0 ]
 	then
-		echo " [ OK ] Grupo de volumes REMOVIDO com sucesso!"
+                echo -e "\n [\033[0;32m OK\033[0m ] Grupo de volumes REMOVIDO com sucesso!"
 	else
-		echo "[ FALHA ] Ocorreram erros na REMOÇÃO do grupo de volumes!"
+                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros na REMOÇÃO do grupo de volumes!"
 		exit 1
 	fi 
 }
@@ -152,13 +151,16 @@ function vg_extend() {
 	vgscan
 	separador
 	read -p "Informe o grupo de volume: " grupo_volume 
+	separador
+	pvscan
+	separador
 	read -p "Informe o volume fisico a ser adicionado: " volume_fisico
 	vgextend $grupo_volume $volume_fisico
 	if [ $? -eq 0 ]
 	then
-		echo " [ OK ] Novo volume fisico ADICIONADO no grupo de volumes com sucesso!"
+                echo -e "\n [\033[0;32m OK\033[0m ] Novo volume fisico ADICIONADO no grupo de volumes com sucesso!"
 	else
-		echo "[ FALHA ] Ocorreram erros em ADICIONAR volume fisico no grupo de volume!"
+                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros em ADICIONAR volume fisico no grupo de volume!"
 		exit 1
 	fi 
 }
@@ -166,16 +168,16 @@ function vg_extend() {
 # 8. Remover volume fisico do grupo de volume
 function vg_reduce() {
 	separador
-	vgscan
+	pvscan
 	separador
 	read -p "Informe o volume fisico a ser REMOVIDO: " volume_fisico
 	read -p "Grupo de volume que o volume fisico faz parte: " grupo_volume
 	vgreduce $grupo_volume $volume_fisico
 	if [ $? -eq 0 ]
 	then
-		echo " [ OK ] Volume fisico REMOVIDO do grupo de volume com sucesso!"
+                echo -e "\n [\033[0;32m OK\033[0m ] Volume fisico REMOVIDO do grupo de volume com sucesso!"
 	else
-		echo "[ FALHA ] Ocorreram erros em REMOVER volume fisico do grupo de volume!"
+                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros em REMOVER volume fisico do grupo de volume!"
 		exit 1
 	fi 
 }
@@ -199,9 +201,9 @@ function lv_create() {
 	lvcreate -L $tamanho -n $volume_logico $grupo_volume
 	if [ $? -eq 0 ]
 	then
-		echo " [ OK ] Volume logico CRIADO com sucesso!"
+                echo -e "\n [\033[0;32m OK\033[0m ] Volume logico CRIADO com sucesso!"
 	else
-		echo "[ FALHA ] Ocorreram erros na CRIAÇÃO do volume logico!"
+                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros na CRIAÇÃO do volume logico!"
 		exit 1
 	fi 
 }
@@ -216,9 +218,9 @@ function lv_remove() {
 	lvremove $volume_logico
 	if [ $? -eq 0 ]
 	then
-		echo " [ OK ] Volume logico CRIADO com sucesso!"
+                echo -e "\n [\033[0;32m OK\033[0m ] Volume logico CRIADO com sucesso!"
 	else
-		echo "[ FALHA ] Ocorreram erros na CRIAÇÃO do volume logico!"
+                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros na CRIAÇÃO do volume logico!"
 		exit 1
 	fi 
 }
@@ -235,14 +237,14 @@ function lv_extend() {
 	lvscan
 	separador
 	echo "[ ATENÇÃO ] Verifique que o volume logico esta desmontado antes de prosseguir!"
-	read -p "Informe o volume fisico(ex.: /dev/grupo_volume1/volume1): " volume_logico
+	read -p "Informe o volume logico(ex.: /dev/grupo_volume1/volume1): " volume_logico
 	read -p "Tamanho do volume logico depois do redimensionamento: " tamanho
 	lvresize -L $tamanho $volume_logico	
 	if [ $? -eq 0 ]
 	then
-		echo " [ OK ] Volume logico REDIMENSIONADO com sucesso!"
+                echo -e "\n [\033[0;32m OK\033[0m ] Volume logico REDIMENSIONADO com sucesso!"
 	else
-		echo "[ FALHA ] Ocorreram erros em REDIMENSIONAR o volume logico!"
+                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros em REDIMENSIONAR o volume logico!"
 		exit 1
 	fi 	
 	echo "Verificando se ocorreu algum erro..."
@@ -261,25 +263,25 @@ function lv_reduce() {
 	lvscan
 	separador
 	echo "[ ATENÇÃO ] Verifique que o volume logico esta desmontado antes de prosseguir!"
-        read -p "Informe o volume fisico(ex.: /dev/grupo_volume1/volume1): " volume_logico
+        read -p "Informe o volume logico(ex.: /dev/grupo_volume1/volume1): " volume_logico
         read -p "Tamanho do volume logico depois da redução: " tamanho
 	echo "Verificando se há erros no volume... "
 	e2fsck -f $volume_logico	
 
 	if [ $? -eq 0 ]
 	then
-		echo " [ OK ] Grupo de volumes criado com sucesso!"
+                echo -e "\n [\033[0;32m OK\033[0m ] Checagem no volume logico!"
 	else
-		echo "[ FALHA ] Ocorreram erros na criação do grupo de volumes!"
+                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros na checagem do volume logico!"
 		exit 1
 	fi 	
 	resize2fs $volume_logico $tamanho
 	lvresize -L $tamanho $volume_logico
 	if [ $? -eq 0 ]
 	then
-		echo " [ OK ] Volume logico DIMINUIDO com sucesso!"
+                echo -e "\n [\033[0;32m OK\033[0m ] Volume logico DIMINUIDO com sucesso!"
 	else
-		echo "[ FALHA ] Ocorreram erros em DIMINUIR o volume logico!"
+                echo -e "\n [\033[0;31m FALHA\033[0m ] Ocorreram erros em DIMINUIR o volume logico!"
 		exit 1
 	fi 	
 }
@@ -319,14 +321,14 @@ case $opt in
 	"2") pv_remove ;;	
 	"3") pv_display ;;
 	"0") menu ;;
-	"*") echo "[ FALHA ] Opção Invalida" ;;  
+	"*") echo "\n [\033[0;31m FALHA\033[0m ]  Opção Invalida" ;;  
 	esac
 	;;
 
 	2) echo "1. Criar grupo de volume"
 	echo "2. Remover volume fisico de um grupo de volume"
 	echo "3. Remover todo um grupo de volume"
-	echo "4. Extender grupo de volume"
+	echo "4. Estender grupo de volume"
 	echo "5. Mostrar detalhes dos grupos de volumes"
 	echo "0. Voltar"
 	read -p "> " opt
@@ -338,7 +340,7 @@ case $opt in
 	"4") vg_extend ;;	
 	"5") vg_display ;;
 	"0") menu ;;
-	"*") echo "[ FALHA ] Opção invalida!" ;;
+	"*") echo "\n [\033[0;31m FALHA\033[0m ]  Opção invalida!" ;;
 	esac	 
 	;;
 
@@ -357,19 +359,18 @@ case $opt in
 	"4") lv_extend ;;
 	"5") lv_reduce ;;
 	"0") menu ;;	
-	"*") echo "[ FALHA ] Opção invalida!";;
+	"*") echo "\n [\033[0;31m FALHA\033[0m ]  Opção invalida!";;
 	esac
 	;;
 	
 	
 	0) exit 0 ;; 	
 
-	*) echo "[ FALHA ] Opção invalida!" ;;
+	*) echo "\n [\033[0;31m FALHA\033[0m ]  Opção invalida!" ;;
 	
 esac
 
 }
-
 
 
 #function menu() {
@@ -381,7 +382,7 @@ esac
 #	echo "4. [VG] Criar grupo de volume"
 #	echo "5. [VG] Remover grupo de volume"
 #	echo "6. [VG] Mostrar detalhes do grupo de volumes"
-#	echo "7. [VG] Extender grupo de volume"	
+#	echo "7. [VG] Estender grupo de volume"	
 #	echo "8. [VG] Remover volume fisico de um grupo de volume"
 #	echo "9. [VG] Scannear grupo de volumes "
 #	echo "10. [LV] Criar volume logico"
@@ -426,7 +427,7 @@ do
 			menu
 		fi
         else
-        	echo "Executar o script como root!"
+                echo -e "\n [\033[0;31m FALHA\033[0m ] Executar o script como root!"
         	exit 1
 	fi
 done
