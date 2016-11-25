@@ -9,7 +9,9 @@
 #	- Extender volume logico
 #	- Reduzir tamanho de volume logico
 #	- Remover e mostrar detalhes de todos itens acima
+#
 
+# Pacotes requeridos: lvm2
 #
 # Distributed under the terms if the MIT License.
 # See accompanying file LICENSE or copy at http://www.opensource.org/licenses/MIT_1_0.txt
@@ -18,8 +20,11 @@
 # Autor: João Lucas <joaolucas@linuxmail.org>
 #
 
-# +-----------------------------LVM----------------------------------+
-# |			        				     |
+# XXX - função 13 arrumar extends
+
+#			      +-----+	
+# +---------------------------| LVM |--------------------------------+
+# |			      +-----+				     |
 # |								     |
 # |    +-------------+	         +-----------+      +--------------+ | 
 # |    | /mnt/backup | 	         | /mnt/var  |      |  		   | |->Sistemas de arquivos
@@ -56,11 +61,17 @@ function usage() {
 	exit 0
 }
 
+function separador() {
+	echo "====================================================================================="
+}
 
 #
 ## VOLUME FISICO
 # 1. Criar volume fisico (physical volume)
 function pv_create() {
+	separador
+	pvscan
+	separador	
 	read -p "Informe o volume fisico a ser CRIADO(ex.: /dev/sdc2):" volume_fisico
 	pvcreate $volume_fisico
 	if [ $? -eq 0 ]
@@ -68,12 +79,15 @@ function pv_create() {
 		echo "[ OK ] Volume fisico criado!"
 	else
 		echo "[ FALHA ] Ocorreram erros! Verifique se o volume fisico esta correto."
-		exit 0
+		exit 1
 	fi		
 }
 
 # 2. Remover volume fisico
 function pv_remove() { 
+	separador
+	pvscan
+	separador	
 	read -p "Informe o volume fisico a ser REMOVIDO: " volume_fisico
 	pvremove $volume_fisico --force
 	if [ $? -eq 0 ]
@@ -87,7 +101,7 @@ function pv_remove() {
 
 # 3. Mostrar detalhes dos volumes fisicos
 function pv_display() {
-	pvscan
+	pvdisplay
 }
 
 
@@ -95,6 +109,10 @@ function pv_display() {
 ## GRUPO DE VOLUME 
 # 4. Criar grupo de volume (volume group)
 function vg_create() {
+	separador
+	vgscan
+	separador
+	
 	read -p "Nome do grupo de volumes(ex.: grupo_volume1): " gv_nome
 	read -p "Informe os volumes fisicos(ex.: /dev/sda1 /dev/sda2 /dev/sdc1): " vg_volume_fisico
 	vgcreate $gv_nome $vg_volume_fisico		
@@ -109,6 +127,9 @@ function vg_create() {
 
 # 5. Remover grupo de volume
 function vg_remove() {
+	separador
+	vgscan
+	separador
 	read -p "Nome do grupo de volume a ser REMOVIDO: " grupo_volume
 	vgremove $grupo_volume
 	if [ $? -eq 0 ]
@@ -122,13 +143,16 @@ function vg_remove() {
 
 # 6. Mostrar detalhes do grupo de volume
 function vg_display() {
-	vgscan
+	vgdisplay
 }
 
 # 7. Adicionar um novo volume fisico para o grupo de volume
 function vg_extend() {
+	separador
+	vgscan
+	separador
 	read -p "Informe o grupo de volume: " grupo_volume 
-	read -p "Informe o volume fisico a ser adicionado" volume_fisico
+	read -p "Informe o volume fisico a ser adicionado: " volume_fisico
 	vgextend $grupo_volume $volume_fisico
 	if [ $? -eq 0 ]
 	then
@@ -141,6 +165,9 @@ function vg_extend() {
 
 # 8. Remover volume fisico do grupo de volume
 function vg_reduce() {
+	separador
+	vgscan
+	separador
 	read -p "Informe o volume fisico a ser REMOVIDO: " volume_fisico
 	read -p "Grupo de volume que o volume fisico faz parte: " grupo_volume
 	vgreduce $grupo_volume $volume_fisico
@@ -155,7 +182,7 @@ function vg_reduce() {
 
 # 9. Reconstruir o arquivo /etc/lvmtab
 function vg_scan() { 
-	vgscan
+	vgdisplay
 }
 
 
@@ -163,6 +190,9 @@ function vg_scan() {
 ## VOLUME LOGICO
 # 10. Criar volume logico
 function lv_create() {
+	separador
+	lvscan
+	separador
 	read -p "Nome do volume logico(ex.: volume1): " volume_logico
 	read -p "Infome o grupo de volume: " grupo_volume
 	read -p "Tamanho do grupo de volume(ex.: 100GB):" tamanho
@@ -178,6 +208,9 @@ function lv_create() {
 
 # 11. Remover volume logico
 function lv_remove() {
+	separador
+	lvscan
+	separador
 	echo "[ ATENÇÃO ] Antes de remover um volume lógico, é preciso desmontalo!"
 	read -p "Informe o volume logico a ser REMOVIDO(ex.: /dev/grupo_volume1/volume1): " volume_logico
 	lvremove $volume_logico
@@ -198,6 +231,9 @@ function lv_display() {
 
 # 13. Aumentar o tamanho do volume logico
 function lv_extend() {
+	separador
+	lvscan
+	separador
 	echo "[ ATENÇÃO ] Verifique que o volume logico esta desmontado antes de prosseguir!"
 	read -p "Informe o volume fisico(ex.: /dev/grupo_volume1/volume1): " volume_logico
 	read -p "Tamanho do volume logico depois do redimensionamento: " tamanho
@@ -221,6 +257,9 @@ function lv_reduce() {
 # OBS. Quando você vai EXPANDIR um volume LVM, primeiro redimensiona o volume e depois atualiza as informações do sistema de arquivos.
 # Quando você DIMINUIR o volume logico, primeiro atualiza a informação do sistema de arquivos, e depois reduz o tamanho do volume.
 # Isso é para evitar a perda de dados
+	separador
+	lvscan
+	separador
 	echo "[ ATENÇÃO ] Verifique que o volume logico esta desmontado antes de prosseguir!"
         read -p "Informe o volume fisico(ex.: /dev/grupo_volume1/volume1): " volume_logico
         read -p "Tamanho do volume logico depois da redução: " tamanho
@@ -245,47 +284,136 @@ function lv_reduce() {
 	fi 	
 }
 
+function logo() {
+	separador
+	echo "
+			     ██╗██╗    ██╗   ██╗███╗   ███╗
+			     ██║██║    ██║   ██║████╗ ████║
+			     ██║██║    ██║   ██║██╔████╔██║
+			██   ██║██║    ╚██╗ ██╔╝██║╚██╔╝██║
+			╚█████╔╝███████╗╚████╔╝ ██║ ╚═╝ ██║
+			 ╚════╝ ╚══════╝ ╚═══╝  ╚═╝     ╚═╝	
+			 Joao Logical Volume Manager v0.1"
+	separador
+}
+
+
 
 function menu() {
-echo "#####################################################################"
-echo "1. [PV] Criar volume fisico"
-echo "2. [PV] Remover volume fisico"
-echo "3. [PV] Mostrar detalhes dos volumes fisicos"
-echo "4. [VG] Criar grupo de volume"
-echo "5. [VG] Remover grupo de volume"
-echo "6. [VG] Mostrar detables do grupo de volumes"
-echo "7. [VG] Extender grupo de volume"	
-echo "8. [VG] Remover volume fisico de um grupo de volume"
-echo "9. [VG] Scannear grupo de volumes "
-echo "10. [LV] Criar volume logico"
-echo "11. [LV] Remover volume logico"
-echo "12. [LV] Mostrar detalhes do volume logico"
-echo "13. [LV] Aumentar volume logico"
-echo "14. [LV] Diminuir volume logico"
-echo "99. Sair"
-read -p "Entre com a opção: " opcao
-echo
+	logo
+	echo "1. Volume fisico " 
+	echo "2. Grupo de volume"
+	echo "3. Volume logico"
+	echo "0. Sair"
+	read -p "> " opt
 
-case $opcao in
-	"1") pv_create ;; 
-	"2") pv_remove ;;
-	"3") pv_display ;;
-	"4") vg_create ;;
-	"5") vg_remove ;;
-	"6") vg_display ;;
-	"7") vg_extend ;;
-	"8") vg_reduce ;;
-	"9") vg_scan ;; 
-	"10") lv_create ;; 
-	"11") lv_remove ;;
-	"12") lv_display ;;
-	"13") lv_extend ;;
-	"14") lv_reduce ;;
+case $opt in
+	1) echo "1. Criar volume fisico"
+	echo "2. Remover volume fisico"
+	echo "3. Mostrar detalhes dos volumes fisicos"
+	echo "0. Voltar"
+	read -p "> " opt
 	
-	"99") exit 0 ;;	
-	*) usage ;;
+	case $opt in
+	"1") pv_create ;;
+	"2") pv_remove ;;	
+	"3") pv_display ;;
+	"0") menu ;;
+	"*") echo "[ FALHA ] Opção Invalida" ;;  
+	esac
+	;;
+
+	2) echo "1. Criar grupo de volume"
+	echo "2. Remover volume fisico de um grupo de volume"
+	echo "3. Remover todo um grupo de volume"
+	echo "4. Extender grupo de volume"
+	echo "5. Mostrar detalhes dos grupos de volumes"
+	echo "0. Voltar"
+	read -p "> " opt
+	
+	case $opt in
+	"1") vg_create ;;
+	"2") vg_reduce ;;
+	"3") vg_remove ;;
+	"4") vg_extend ;;	
+	"5") vg_display ;;
+	"0") menu ;;
+	"*") echo "[ FALHA ] Opção invalida!" ;;
+	esac	 
+	;;
+
+	3) echo "1. Criar volume logico"
+	echo "2. Remover volume logico"
+	echo "3. Mostrar detalhes do volume logico"
+	echo "4. Aumentar volume logico"
+	echo "5. Diminuir volume logico"
+	echo "0. Voltar"
+	read -p "> " opt
+	
+	case $opt in
+	"1") lv_create ;;
+	"2") lv_remove ;;
+	"3") lv_display ;;
+	"4") lv_extend ;;
+	"5") lv_reduce ;;
+	"0") menu ;;	
+	"*") echo "[ FALHA ] Opção invalida!";;
+	esac
+	;;
+	
+	
+	0) exit 0 ;; 	
+
+	*) echo "[ FALHA ] Opção invalida!" ;;
+	
 esac
+
 }
+
+
+
+#function menu() {
+#	logo
+#	echo
+#	echo "1. [PV] Criar volume fisico"
+#	echo "2. [PV] Remover volume fisico"
+#	echo "3. [PV] Mostrar detalhes dos volumes fisicos"
+#	echo "4. [VG] Criar grupo de volume"
+#	echo "5. [VG] Remover grupo de volume"
+#	echo "6. [VG] Mostrar detalhes do grupo de volumes"
+#	echo "7. [VG] Extender grupo de volume"	
+#	echo "8. [VG] Remover volume fisico de um grupo de volume"
+#	echo "9. [VG] Scannear grupo de volumes "
+#	echo "10. [LV] Criar volume logico"
+#	echo "11. [LV] Remover volume logico"
+#	echo "12. [LV] Mostrar detalhes do volume logico"
+#	echo "13. [LV] Aumentar volume logico"
+#	echo "14. [LV] Diminuir volume logico"
+#	echo "99. Sair"
+#	read -p "Entre com a opção: " opcao
+#	echo
+#
+#case $opcao in
+#	"1") pv_create ;; 
+#	"2") pv_remove ;;
+#	"3") pv_display ;;
+#	"4") vg_create ;;
+#	"5") vg_remove ;;
+#	"6") vg_display ;;
+#	"7") vg_extend ;;
+#	"8") vg_reduce ;;
+#	"9") vg_scan ;; 
+#	"10") lv_create ;; 
+#	"11") lv_remove ;;
+#	"12") lv_display ;;
+#	"13") lv_extend ;;
+#	"14") lv_reduce ;;
+#	
+#	"99") exit 0 ;;	
+#	*) usage ;;
+#esac
+#}
+
 
 while true
 do
