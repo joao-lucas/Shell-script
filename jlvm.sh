@@ -22,7 +22,7 @@
 # |			        				     |
 # |								     |
 # |    +-------------+	         +-----------+      +--------------+ | 
-# |    | /mnt/backup | 	         | /mnt/var  |      |  		   | |->Sistemas de Arquivos
+# |    | /mnt/backup | 	         | /mnt/var  |      |  		   | |->Sistemas de arquivos
 # |    +-------------+ 	         +-----------+      |  Espaço não  | |
 # |	       |		       |            |	alocado    | |
 # | +---------------------+   +------------------+  |		   | |->Volumes logicos
@@ -30,7 +30,7 @@
 # | +---------------------+   +------------------+  +--------------+ |
 # | 	       |		       |		    |	     |
 # | +--------------------------------------------------------------+ |
-# | |		            storage				   | |
+# | |		            storage				   | |->Grupos de volumes
 # | +--------------------------------------------------------------+ |
 # |	      |		    |	          |	        |	     |	
 # |     +-----------+ +-----------+ +-----------+ +-----------+	     | 
@@ -204,12 +204,11 @@ esac
 
 while true
 do
-        #USER=$(id -u)
         if test `id -u` -eq 0
         then
         	menu
         else
-        echo "Executar o script como root!"
+        	echo "Executar o script como root!"
         fi
 done
 
