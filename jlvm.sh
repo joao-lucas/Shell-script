@@ -281,8 +281,9 @@ case $opcao in
 	"12") lv_display ;;
 	"13") lv_extend ;;
 	"14") lv_reduce ;;
-
+	
 	"99") exit 0 ;;	
+	*) usage ;;
 esac
 }
 
@@ -290,9 +291,14 @@ while true
 do
         if test `id -u` -eq 0
         then
-        	menu
+		if [ $# -ge 1 ]
+		then
+			usage
+		else
+			menu
+		fi
         else
         	echo "Executar o script como root!"
-        fi
+        	exit 1
+	fi
 done
-
