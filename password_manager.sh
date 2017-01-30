@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Script para gerar senhas aleatorias e grava-las em um arquivo protegido com senha e criptografia GPG simétrica (CAST5 cipher).
+# Script para gerar senhas aleatorias e grava-las em um arquivo protegido com senha e criptografia simétrica GPG (CAST5 cipher).
 #
 # The MIT License (MIT)
 # Copyright (c) 2016 João Lucas
