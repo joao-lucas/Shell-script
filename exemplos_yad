@@ -1,0 +1,68 @@
+## Retirados das videos aulas de Gustavo Lime no youtube
+
+## Botões usando yad
+yad --text="testando os botões do yad" --text-align=center --button "Clique aqui":10 --buttons-logout=start# 
+# a posição do logout do botão pode ser: start, center, end
+
+# usando botões gtk
+yad --text="testando botões gtk" --button gtk-ok:10 --button gtk-close:20 --button gtk-about:30 --button gtk-add:40 --button gtk-apply:50 --button gtk-cancel:60 --button gtk-delete:70 --button gtk-edit:80 --button gtk-fullscreen --button gtk-home  --button gtk-quit:90
+
+# Fazer impressão de arquivos
+yad --print --filename=/etc/passwd --add-preview
+ 
+
+## Tamanho e localização da caixa gráfica
+yad --text="testando tamanho e localização" --center --whight=500 --height=200
+
+#usando geometry(--geometry=larguraxaltura+posx+posy
+
+
+## Timeout
+yad --text="testando timeout" --image time --image-on-top
+yad --text="testando timeout" --image time --image-on-top --timeout=15 --timeout-indicator=buttom
+
+## Opção calendar
+yad --calendar --day=30 --month=5 --year=1995
+
+## Lendo arquivo de log
+tail -f /var/log/audit.log | yad --text-info --maximized --title="Leitor de Log" --image find --image-on-top --button gtk-close --text="Lendo em tempo real arquivo de log"
+
+## Opção FIle-Selection
+# seleciona arquivos
+yad --file --width=600 --height=600 --center
+
+# seleciona diretorios
+yad --file --width=600 --height=600 --center --directory
+
+# Salvar algum arquivo
+yad --file --width=600 --height=600 --center --save
+
+# Salvar um arquivo e acaso o arquivo ja existir, perguntar se deseja substituir arquivo
+yad --file --width=600 --height=600 --center --save --confirm-overwrite="Arquivo já existe. Tem certeza que deseja salvar?"
+
+# escolhendo multiplos arquivos
+yad --file --width=600 --height=600 --center --save --multiple --separator="@"
+
+## Opção scale
+yad --scale
+
+# já começa em 20
+yad --scale --value=20
+
+# determinando o valor minimo
+yad --scale --value=20 --min-value=10
+
+# determinando o valor maximo
+yad --scale --value=25 --min-value=10 --max-value=40
+
+# tamanho do paso de um valor pra outro
+yad --scale --value=25 --min-value=10 --max-value=40 --step=2
+
+# Criar escala vertical com marcações
+yad --scale --value=25 --min-value=10 --max-value=40 --step=2 --vertical --widht=200 --height=200 --inc-buttons --mark="febre baixa":30 --mark="febre alta":38 --image /home/joao/termometro.png --title="terremoto"
+
+## Opção Drag n Drop(arrastar e soltar)
+yad --dnd --text="Arraste um arquivo pra cá para abrir" --command=gedit --width=300 --height=300 --tooltip
+
+## Lendo  o /etc/passwd 
+cat /etc/passwd | tr ':' '\n' | yad --title "Lista de usuarios" --list --column="Name" --column="Senha" --column="UID" --column="GID" --column="Comentarios" --column="diretorio" --column="Shell" --button gtk-close --image terminal --image-om-top --txt="voce esta visualizando o arquivo passwd" 
