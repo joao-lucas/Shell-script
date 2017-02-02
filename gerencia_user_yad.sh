@@ -9,34 +9,62 @@
 # Autor: João Lucas <joaolucas@linuxmail.org>
 #
 
+
 DATA_HOJE=$(date +%d/%m/%Y)
-WIDTH=10
-HEIGHT=10
+WIDTH=100
+HEIGHT=100
 TITLE_PADRAO="SNOW USER MANAGER"
+AUTOR="João Lucas <joaolucas@linuxmail.org>"
+CREDITOS="Gustavo Soares de Lima <gustavo@logicus.com.br>"
+LICENSE="MIT"
+
 
 menu_principal(){
-	ESCOLHA=$(yad --title "$TITLE_PADRAO" \
-	--center \
-	--width=$WIDTH\
-	--height=$HEIGHT \
-	--entry "Adicionar usuario" "Remover usuario" "Determinar data de expiração" "Criar grupo de usuarios" "Adicionar usuario em grupo" "Visualizar usuarios" "Visualizar grupos" \
-	--text="Bem vindo ao Snow User Manager" \
+	MENU=$(yad --title "$TITLE_PADRAO" \
+	--list \
+	--column "Icon:IMG" \
+	--column "Opção" \
+	--column "Descrição" \
+	--maximized \
+	gtk-add "Criar usuario" "Adicionar usuario ao sistema" \
+	gtk-delete "Remover usuario" "Remover usuario do sistema" \
+	users "Data expiração" "Determinar expiração da conta do usuario" \
+	find "Ver usuarios" "Visualizar todos usuarios do sistema" \
+	gtk-add "Criar grupo" "Criar grupo de usuarios" \
+	gtk-add "Adicionar em grupo" "Adicionar usuario em grupo" \
+	find "Ver grupos" "Visualizar todos grupos do sistema" \
+	gtk-about "Sobre" "Sobre Snow User Manager" \
 	--button gtk-ok \
-	--button gtk-cancel
+	--button gtk-quit
 	);
-
+	
+	ESCOLHA=$(echo $MENU | cut -d '|' -f2)
+	
 	case $ESCOLHA in
-	"Adicionar usuario") criar_user ;;
-	"Determinar data de expiração") determ_expiracao ;;
-	"Visualizar usuarios") exibir_users ;;
-	"Criar grupo de usuarios") criar_grupo ;;
-	"Adicionar usuario em grupo") adicionar_user_grupo ;;
-	"Remover usuario") delete_user ;;
-	"Visualizar grupos") exibir_grupos ;;
+	"Criar usuario") criar_user ;;
+	"Data expiração") determ_expiracao ;;
+	"Ver usuarios") exibir_users ;;
+	"Criar grupo") criar_grupo ;;
+	"Adicionar em grupo") adicionar_user_grupo ;;
+	"Remover usuario") delete_user ;;	
+	"Ver grupos") exibir_grupos ;;
+	"Sobre") about ;;
 	*) exit 1 ;;
 	esac
 }
 
+about(){
+	yad --title="$TITLE_PADRAO" \
+                --text="$TITLE_PADRAO \nAutor: $AUTOR \nCreditos: $CREDITOS \nLicense: $LICENSE" \
+		--text-align=center \
+                --image gtk-about \
+                --image-on-top \
+                --button gtk-close \
+                --no-markup \
+                --undecorated \
+                --buttons-layout="center" \
+		--center
+}
 criar_user(){
 	CADASTRAR_USER=$( \
 		yad --form \
@@ -145,9 +173,7 @@ exibir_users(){
 	--image terminal \
 	--image-om-top \
 	--button gtk-ok:10 \
-	--center \
-	---width=800 \
-	--height=400 		
+	--maximized
 }
 
 criar_grupo(){
