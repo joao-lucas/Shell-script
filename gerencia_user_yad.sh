@@ -1,27 +1,41 @@
 #!/bin/bash
 
+# Script para gerenciar contas de usuários
+#  
+# The MIT License (MIT)
+# Copyright (c) 2016 João Lucas
+#
+# Data: 2017-01-30-v0.1
+# Autor: João Lucas <joaolucas@linuxmail.org>
+#
+
 DATA_HOJE=$(date +%d/%m/%Y)
 WIDTH=400
 HEIGHT=200
-
-
-TITLE_PADRAO="USER MANAGER"
+TITLE_PADRAO="SNOW USER MANAGER"
 
 menu_principal(){
 	yad --title="$TITLE_PADRAO" \
+	--width=$WIDTH \
+	--height=$HEIGHT \
+	--columns=2 \
+	--center \
+	--text="				\
+	Bem vindo ao Snow User Manager" \
+	--text-align=center \
+	--image-on-top \
 	--image /home/joao/akita.jpg \
-	--button "Adicionar Usuario":10 \
+	--button gtk-add:10 \
 	--button "Determinar data de expiração":20 \
 	--button "Visualizar Usuarios":30 \
-	--button "Sair":90 \
-	--width=400 \
-	--height=200 \
-	--center
-	
+	--button gtk-delete:40 \
+	--button gtk-close:90
+
 	case $? in
 	10) cadastrar_user ;;
 	20) determ_expiracao ;;
 	30) exibir_users ;;
+	40) delete_user ;;
 	90) exit 0 ;;
 	*) exit 1 ;;
 	esac
@@ -90,6 +104,31 @@ determ_expiracao(){
 	fi
 }
 
+delete_user(){
+	USER=$(yad --title="teste" \
+	--text="Informe usuario" --entry --center
+	);
+	
+	cat /etc/passwd | cut -d ':' -f 1 | grep -qw $USER 2> /dev/null
+	if [ "$?" -eq "0" ]
+	then
+		userdel -r $USER	
+		yad --title="$TITLE_PADRAO" \
+		--text="Usuario $USER apagado com sucesso!" \
+		--center \
+		--button gtk-ok
+
+	else
+		yad --title="$TITLE_PADRAO" \
+		--text="O usuario informado $USER não existe!" \
+		--button gtk-ok \
+		--center \
+		width=$WIDTH \
+		height=$HEIGHT \
+		--image error			
+	fi	
+}
+
 exibir_users(){
 	cat /etc/passwd | tr ':' '\n' | yad  --title "Lista de usuarios" \
 	--list \
@@ -106,11 +145,21 @@ exibir_users(){
 	--button gtk-ok:10 \
 	--center \
 	---width=800 \
-	--height=400 
-		
+	--height=400 		
 }
  
 while true
 do
-	menu_principal
+	if [ `id -u` -eq "0" ] 
+	then
+		menu_principal
+	else
+		yad --title="$TITLE_PADRAO" \
+		--text="Execute o script como root!" \
+		--image warning --image-on-top \
+		--timeout=5 --timeout-indicador=button \
+		--center
+		exit 1
+		
+	fi
 done
