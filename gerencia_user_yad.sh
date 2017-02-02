@@ -10,38 +10,34 @@
 #
 
 DATA_HOJE=$(date +%d/%m/%Y)
-WIDTH=400
-HEIGHT=200
+WIDTH=10
+HEIGHT=10
 TITLE_PADRAO="SNOW USER MANAGER"
 
 menu_principal(){
-	yad --title="$TITLE_PADRAO" \
-	--width=$WIDTH \
-	--height=$HEIGHT \
-	--columns=2 \
+	ESCOLHA=$(yad --title "$TITLE_PADRAO" \
 	--center \
-	--text="				\
-	Bem vindo ao Snow User Manager" \
-	--text-align=center \
-	--image-on-top \
-	--image /home/joao/akita.jpg \
-	--button gtk-add:10 \
-	--button "Determinar data de expiração":20 \
-	--button "Visualizar Usuarios":30 \
-	--button gtk-delete:40 \
-	--button gtk-close:90
+	--width=$WIDTH\
+	--height=$HEIGHT \
+	--entry "Adicionar usuario" "Remover usuario" "Determinar data de expiração" "Criar grupo de usuarios" "Adicionar usuario em grupo" "Visualizar usuarios" "Visualizar grupos" \
+	--text="Bem vindo ao Snow User Manager" \
+	--button gtk-ok \
+	--button gtk-cancel
+	);
 
-	case $? in
-	10) cadastrar_user ;;
-	20) determ_expiracao ;;
-	30) exibir_users ;;
-	40) delete_user ;;
-	90) exit 0 ;;
+	case $ESCOLHA in
+	"Adicionar usuario") criar_user ;;
+	"Determinar data de expiração") determ_expiracao ;;
+	"Visualizar usuarios") exibir_users ;;
+	"Criar grupo de usuarios") criar_grupo ;;
+	"Adicionar usuario em grupo") adicionar_user_grupo ;;
+	"Remover usuario") delete_user ;;
+	"Visualizar grupos") exibir_grupos ;;
 	*) exit 1 ;;
 	esac
 }
 
-cadastrar_user(){
+criar_user(){
 	CADASTRAR_USER=$( \
 		yad --form \
 		--title="$TITLE_PADRAO" \
@@ -50,8 +46,9 @@ cadastrar_user(){
 		--field="Cadastrando em":RO "$DATA_HOJE" \
 		--field="Nome completo:" "" \
 		--field="Nome de usuario:" "" \
-		--field="Shell" "" \
-		--field="Senha":H \
+		--field="Shell" "/bin/false" \
+		--field="Senha":H "" \
+		--field="Criar diretorio home":CHK TRUE \
 		--button gtk-ok:10 \
 		--button gtk-cancel:20 \
 		--center
@@ -72,10 +69,10 @@ determ_expiracao(){
 	--title="$TITLE_PADRAO" \
 	--center \
 	--text="O tempo deve ser passado em Dias" \
-	--field="Informe o nome do usuario: " "" \
-	--field="Tempo maximo de validade da conta:" "" \
-	--field="Tempo que ousuario começara a ser avisado antes da conta expirar:" "" \
-	--field="Tempo antes da conta ser desativada:" "" \	
+	--field="Informe o nome do usuario:" "" \
+	--field="Tempo maximo de validade da conta:":NUM "" \
+	--field="Tempo que o usuario começara a ser avisado antes da conta expirar:"NUM "" \
+	--field="Tempo antes da conta ser desativada:":NUM "" \	
 	--button gtk-ok \
 	--button gtk-cancel 
 	);
@@ -105,10 +102,15 @@ determ_expiracao(){
 }
 
 delete_user(){
-	USER=$(yad --title="teste" \
-	--text="Informe usuario" --entry --center
+	USR=$(yad --title="$TITLE_PADRAO" \
+	 --form \
+	 --field "Nome do usuario" "" \
+	 #--field "Apagar diretorio home":CHK TRUE \
+	 --center
 	);
 	
+	USER=$(echo $USR | cut -d '|' -f 1)
+	#DEL_HOME=$()	
 	cat /etc/passwd | cut -d ':' -f 1 | grep -qw $USER 2> /dev/null
 	if [ "$?" -eq "0" ]
 	then
@@ -147,6 +149,80 @@ exibir_users(){
 	---width=800 \
 	--height=400 		
 }
+
+criar_grupo(){
+	
+	GRP=$(yad --title="$TITLE_PADRAO" \
+	--form \
+	--field "Grupo" "" \
+	--center
+	);
+
+	GRUPO=$(echo $GRP | cut -d '|' -f 1)
+	groupadd $GRP 2> /dev/null
+	if [ "$?" -eq "0" ]
+	then	
+		yad --title="$TITLE_PADRAO" \
+		--text="Grupo $GRUPO criado com sucesso!" \
+		--center \
+		--button gtk-ok
+
+	else
+		yad --title="$TITLE_PADRAO" \
+		--text="Ocorreram problemas em criar o grupo $GRUPO" \
+		--button gtk-ok \
+		--center \
+		width=$WIDTH \
+		height=$HEIGHT \
+		--image error			
+	fi
+		
+}
+
+adicionar_user_grupo(){
+	DADOS=$(yad --title="$TITLE_PADRAO" --form --field "Usuario" "" --field "Grupo" "" \
+	--center
+	); 
+	
+	USER=$(echo $DADOS | cut -d '|' -f 1)
+	GRUPO=$(echo $DADOS | cut -d '|' -f 2)
+	
+	cat /etc/passwd | cut -d ':' -f 1 | grep -iw $USER && cat /etc/group | cut -d ':' -f 1 | grep -iw $GRUPO 2> /dev/null
+	if [ "$?" -eq "0" ]
+	then	
+		usermod -G $GRUPO $USER
+		yad --title="$TITLE_PADRAO" \
+		--text="Usuario $USER adicionado no grupo $GRUPO com sucesso!" \
+		--center \
+		--button gtk-ok
+
+	else
+		yad --title="$TITLE_PADRAO" \
+		--text="O usuario $USER ou o grupo $GRUPO não existe!" \
+		--button gtk-ok \
+		--center \
+		width=$WIDTH \
+		height=$HEIGHT \
+		--image error			
+
+	fi
+		
+}
+
+exibir_grupos(){
+	cat /etc/group | tr ':' '\n' | yad  --title "Lista de grupos" \
+	--list \
+	--column="Nome grupo" \
+	--column="Senha" \
+	--column="GID" \
+	--column="Usuarios" \
+	--image-om-top \
+	--button gtk-ok:10 \
+	--center \
+	---width=400 \
+	--height=400 	
+}
+
  
 while true
 do
