@@ -3,7 +3,9 @@
 TITLE="Cracking WPA/WPA2"
 DATE=$(date +'%d-%m-%y-%H-%M')	
 AUTHOR="João Lucas <joaolucas@linuxmail.org>"
-LICENSE="MIT"
+VERSION="0.1"
+LICENSE="GPL"
+
 
 function_verificar_usuario(){
 	if [ `id -u` != "0" ] 
@@ -21,8 +23,7 @@ function_verificar_usuario(){
 }
 
 function_about(){
-	yad --title="$TITLE" \
-                --text="$TITLE \n\nUtilizando suite aircrack-ng e yad dialog \n\nAuthor: $AUTHOR \nLicense: $LICENSE" \
+	yad --text="$TITLE \nversão $VERSION \n\nCracking WPA/WPA2 utilizando suite aircrack-ng e yad dialog \n\nSoftware sob a licença GNU GPL versão3 \nCodigo fonte disponível no Github \n<https://github.com/joao-lucas/Shell-script> \n\nAuthor: $AUTHOR" \
 		--text-align=center \
                 --image gtk-about \
                 --image-on-top \
@@ -54,6 +55,7 @@ function_escanear_todas_redes(){
 function_escanear_uma_rede(){
 	PARAMETROS=$(yad --title "$TITLE" \
 	--form \
+	--center \
 	--field "BSSID" "" \
 	--field "ESSID" "" \
 	--field "Channel" "" \
@@ -61,9 +63,7 @@ function_escanear_uma_rede(){
 	--field "Salvar em" "$DATE.cap" \
 	#--field "Salvar na pasta":BTN "yad --title $TITLE --maximized --file --directory" \
 	--button gtk-cancel \
-	--button gtk-ok \
-	--center
-	);
+	--button gtk-ok );
 	
 	BSSID=$(echo "$PARAMETROS" | cut -d '|' -f 1)
 	ESSID=$(echo "$PARAMETROS" | cut -d '|' -f 2)
@@ -109,7 +109,6 @@ function_quebrar(){
 }
 
 function_menu(){
-
 	while true
 	do
 		MENU=$(yad --title "$TITLE" \
@@ -117,7 +116,7 @@ function_menu(){
 			--text="Cracking wpa/wpa2" \
 			--column="Icones:IMG" \
 			--column="Opção" \
-			--column="Descriçãp" \
+			--column="Descrição" \
 			--image emblem-debian \
 			--image-on-top \
 			--maximized \
@@ -131,7 +130,7 @@ function_menu(){
 			gtk-about "Sobre" "Informações sobre o script" \
 			gtk-quit "Sair" "Sair do script")
 
-		MENU=$(echo $Menu | cut -d "|" -f2)
+		MENU=$(echo $MENU | cut -d "|" -f2)
 
 		case $MENU in
 		"Monitor") function_modo_monitoramento ;;
@@ -145,9 +144,6 @@ function_menu(){
 	esac
 done
 }
-
-
-
 
 
 function_verificar_usuario
